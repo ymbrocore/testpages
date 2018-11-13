@@ -1,0 +1,28 @@
+<html>
+<head>
+<script>
+function l() {
+  if (window.location.hash == "#login") {
+    document.getElementById("send").style.visibility = "hidden";
+    document.getElementById("login").style.visibility = "visible";
+  }
+}
+function f() {
+  window.location = "intent:" + window.location.href + "#login#Intent;action=android.intent.action.VIEW;end;";
+}
+</script>
+</head>
+<body onload="l();">
+<div id="send">
+<a onclick="setTimeout(f, 5000);" href="mailto:someone@example.com">Send an EMail</a>
+</div>
+<div id="login" style="visibility: hidden;">
+Login to EMail server:
+<form>
+<p>Login: <input type="text"/></p>
+<p>Password: <input type="password"/></p>
+<p><input type="submit" value="Log in"/></p>
+</form>
+</div>
+</body>
+</html>
