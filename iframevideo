@@ -1,0 +1,9 @@
+<html>
+ <head>
+  <meta charset="utf-8">
+  <title>video</title>
+ </head>
+ <body>
+ <iframe src="https://ymbrocore.github.io/testpages/inside.mp4" width="640" height="480">
+ </body>
+</html>
