@@ -5,6 +5,10 @@
     <body>
         <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/gismeteo/bfegaehidkkcfaikpaijcdahnpikhobf">
          <button onclick="chrome.webstore.install()" id="install-button">Add to Chrome</button>
-
+         <script>
+            if (document.getElementById('extension-is-installed')) {
+            document.getElementById('install-button').style.display = 'none';
+            }
+         </script>
     </body>
 </html>
