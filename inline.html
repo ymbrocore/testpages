@@ -1,9 +1,10 @@
 <html>
     <head>
-        inline extension install test page
+        inline extension install test page<br>
     </head>
     <body>
-         <button onclick="chrome.webstore.install(https://chrome.google.com/webstore/detail/gismeteo/bfegaehidkkcfaikpaijcdahnpikhobf)" id="install-button">Add to Chrome</button>
-         
+        <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/gismeteo/bfegaehidkkcfaikpaijcdahnpikhobf">
+         <button onclick="chrome.webstore.install()" id="install-button">Add to Chrome</button>
+
     </body>
 </html>
