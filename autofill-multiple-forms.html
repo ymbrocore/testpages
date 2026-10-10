@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Автозаполнение — несколько одинаковых форм</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: #202124;
+      background: #f5f6f8;
+      font: 16px/1.5 system-ui, sans-serif;
+    }
+    main { max-width: 1200px; margin: auto; padding: 24px 20px 48px; }
+    h1 { margin: 0 0 12px; font-size: 28px; line-height: 1.25; }
+    h2 { margin: 0 0 16px; font-size: 24px; }
+    h3 { margin: 0 0 20px; font-size: 18px; font-weight: 600; }
+    p { margin: 0 0 12px; }
+    .note { color: #53565c; font-size: 14px; }
+    nav { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 20px 0 32px; }
+    a { color: #174ea6; text-underline-offset: 3px; }
+    section { margin: 0 0 36px; scroll-margin-top: 16px; }
+    .forms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    form { min-width: 0; padding: 20px; border: 1px solid #d5d9df; border-radius: 12px; background: #fff; }
+    .field { margin-bottom: 14px; }
+    label { display: block; margin-bottom: 4px; }
+    input {
+      width: 100%;
+      min-height: 44px;
+      padding: 8px 10px;
+      border: 1px solid #858b94;
+      border-radius: 6px;
+      color: inherit;
+      background: #fff;
+      font: inherit;
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    button {
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 1px solid #858b94;
+      border-radius: 6px;
+      color: #202124;
+      background: #f5f6f8;
+      font: inherit;
+      cursor: pointer;
+    }
+    button[type="submit"] { border-color: #174ea6; color: #fff; background: #174ea6; }
+    input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #a8c7fa; outline-offset: 3px; }
+    @media (max-width: 800px) {
+      .forms { grid-template-columns: 1fr; }
+      main { padding: 20px 16px 36px; }
+      h1 { font-size: 25px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Автозаполнение: несколько одинаковых форм</h1>
+    <p>В каждом блоке три одинаковые формы. Выберите сохранённые данные в одной форме и проверьте, какие поля заполнил браузер в ней и в соседних формах.</p>
+    <p class="note">Используйте тестовые данные. Кнопка «Очистить форму» очищает только свою форму. При отправке значения полей не передаются на сервер и не сохраняются страницей.</p>
+    <nav aria-label="Блоки форм">
+      <a href="#personal">Личные данные</a>
+      <a href="#cards">Банковские карты</a>
+      <a href="#credentials">Логин-пароль</a>
+    </nav>
+
+    <section id="personal" aria-labelledby="personal-title">
+      <h2 id="personal-title">Личные данные</h2>
+      <div class="forms">
+        <form id="personal-1" name="personal-1" aria-labelledby="personal-1-title" action="autofill-multiple-forms-success.html" method="post" autocomplete="on">
+          <h3 id="personal-1-title">форма 1 личные данные</h3>
+          <div class="field">
+            <label for="personal-1-full_name">ФИО</label>
+            <input id="personal-1-full_name" name="full_name" type="text" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="personal-1-phone">Телефон</label>
+            <input id="personal-1-phone" name="phone" type="tel" autocomplete="tel">
+          </div>
+          <div class="field">
+            <label for="personal-1-email">Почта</label>
+            <input id="personal-1-email" name="email" type="email" autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="personal-1-country">Страна</label>
+            <input id="personal-1-country" name="country" type="text" autocomplete="country-name">
+          </div>
+          <div class="field">
+            <label for="personal-1-city">Город</label>
+            <input id="personal-1-city" name="city" type="text" autocomplete="address-level2">
+          </div>
+          <div class="field">
+            <label for="personal-1-street">Улица, дом, квартира</label>
+            <input id="personal-1-street" name="street" type="text" autocomplete="street-address">
+          </div>
+          <div class="actions">
+            <button type="submit">Отправить</button>
+            <button type="reset">Очистить форму</button>
+          </div>
+        </form>
+        <form id="personal-2" name="personal-2" aria-labelledby="personal-2-title" action="autofill-multiple-forms-success.html" method="post" autocomplete="on">
+          <h3 id="personal-2-title">форма 2 личные данные</h3>
+          <div class="field">
+            <label for="personal-2-full_name">ФИО</label>
+            <input id="personal-2-full_name" name="full_name" type="text" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="personal-2-phone">Телефон</label>
+            <input id="personal-2-phone" name="phone" type="tel" autocomplete="tel">
+          </div>
+          <div class="field">
+            <label for="personal-2-email">Почта</label>
+            <input id="personal-2-email" name="email" type="email" autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="personal-2-country">Страна</label>
+            <input id="personal-2-country" name="country" type="text" autocomplete="country-name">
+          </div>
+          <div class="field">
+            <label for="personal-2-city">Город</label>
+            <input id="personal-2-city" name="city" type="text" autocomplete="address-level2">
+          </div>
+          <div class="field">
+            <label for="personal-2-street">Улица, дом, квартира</label>
+            <input id="personal-2-street" name="street" type="text" autocomplete="street-address">
+          </div>
+          <div class="actions">
+            <button type="submit">Отправить</button>
+            <button type="reset">Очистить форму</button>
+          </div>
+        </form>
+        <form id="personal-3" name="personal-3" aria-labelledby="personal-3-title" action="autofill-multiple-forms-success.html" method="post" autocomplete="on">
+          <h3 id="personal-3-title">форма 3 личные данные</h3>
+          <div class="field">
+            <label for="personal-3-full_name">ФИО</label>
+            <input id="personal-3-full_name" name="full_name" type="text" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="personal-3-phone">Телефон</label>
+            <input id="personal-3-phone" name="phone" type="tel" autocomplete="tel">
+          </div>
+          <div class="field">
+            <label for="personal-3-email">Почта</label>
+            <input id="personal-3-email" name="email" type="email" autocomplete="email">
+          </div>
+          <div class="field">
+            <label for="personal-3-country">Страна</label>
+            <input id="personal-3-country" name="country" type="text" autocomplete="country-name">
+          </div>
+          <div class="field">
+            <label for="personal-3-city">Город</label>
+            <input id="personal-3-city" name="city" type="text" autocomplete="address-level2">
+          </div>
+          <div class="field">
+            <label for="personal-3-street">Улица, дом, квартира</label>
+            <input id="personal-3-street" name="street" type="text" autocomplete="street-address">
+          </div>
+          <div class="actions">
+            <button type="submit">Отправить</button>
+            <button type="reset">Очистить форму</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="cards" aria-labelledby="cards-title">
+      <h2 id="cards-title">Банковские карты</h2>
+      <div class="forms">
+        <form id="cards-1" name="cards-1" aria-labelledby="cards-1-title" action="autofill-multiple-forms-success.html" method="post" autocomplete="on">
+          <h3 id="cards-1-title">форма 1 банковские карты</h3>
+          <div class="field">
+            <label for="cards-1-card_number">Номер карты</label>
+            <input id="cards-1-card_number" name="card_number" type="text" autocomplete="cc-number" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="cards-1-expiry_date">Срок действия</label>
+            <input id="cards-1-expiry_date" name="expiry_date" type="text" autocomplete="cc-exp" inputmode="numeric" placeholder="ММ/ГГ">
+          </div>
+          <div class="field">
+            <label for="cards-1-cardholder">Владелец карты</label>
+            <input id="cards-1-cardholder" name="cardholder" type="text" autocomplete="cc-name">
+          </div>
+          <div class="field">
+            <label for="cards-1-cvc">CVC / CVV</label>
+            <input id="cards-1-cvc" name="cvc" type="password" autocomplete="cc-csc" inputmode="numeric">
+          </div>
+          <div class="actions">
+            <button type="submit">Отправить</button>
+            <button type="reset">Очистить форму</button>
+          </div>
+        </form>
+        <form id="cards-2" name="cards-2" aria-labelledby="cards-2-title" action="autofill-multiple-forms-success.html" method="post" autocomplete="on">
+          <h3 id="cards-2-title">форма 2 банковские карты</h3>
+          <div class="field">
+            <label for="cards-2-card_number">Номер карты</label>
+            <input id="cards-2-card_number" name="card_number" type="text" autocomplete="cc-number" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="cards-2-expiry_date">Срок действия</label>
+            <input id="cards-2-expiry_date" name="expiry_date" type="text" autocomplete="cc-exp" inputmode="numeric" placeholder="ММ/ГГ">
+          </div>
+          <div class="field">
+            <label for="cards-2-cardholder">Владелец карты</label>
+            <input id="cards-2-cardholder" name="cardholder" type="text" autocomplete="cc-name">
+          </div>
+          <div class="field">
+            <label for="cards-2-cvc">CVC / CVV</label>
+            <input id="cards-2-cvc" name="cvc" type="password" autocomplete="cc-csc" inputmode="numeric">
+          </div>
+          <div class="actions">
+            <button type="submit">Отправить</button>
+            <button type="reset">Очистить форму</button>
+          </div>
+        </form>
+        <form id="cards-3" name="cards-3" aria-labelledby="cards-3-title" action="autofill-multiple-forms-success.html" method="post" autocomplete="on">
+          <h3 id="cards-3-title">форма 3 банковские карты</h3>
+          <div class="field">
+            <label for="cards-3-card_number">Номер карты</label>
+            <input id="cards-3-card_number" name="card_number" type="text" autocomplete="cc-number" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="cards-3-expiry_date">Срок действия</label>
+            <input id="cards-3-expiry_date" name="expiry_date" type="text" autocomplete="cc-exp" inputmode="numeric" placeholder="ММ/ГГ">
+          </div>
+          <div class="field">
+            <label for="cards-3-cardholder">Владелец карты</label>
+            <input id="cards-3-cardholder" name="cardholder" type="text" autocomplete="cc-name">
+          </div>
+          <div class="field">
+            <label for="cards-3-cvc">CVC / CVV</label>
+            <input id="cards-3-cvc" name="cvc" type="password" autocomplete="cc-csc" inputmode="numeric">
+          </div>
+          <div class="actions">
+            <button type="submit">Отправить</button>
+            <button type="reset">Очистить форму</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="credentials" aria-labelledby="credentials-title">
+      <h2 id="credentials-title">Логин-пароль</h2>
+      <div class="forms">
+        <form id="credentials-1" name="credentials-1" aria-labelledby="credentials-1-title" action="autofill-multiple-forms-success.html" method="post" autocomplete="on">
+          <h3 id="credentials-1-title">форма 1 логин-пароль</h3>
+          <div class="field">
+            <label for="credentials-1-username">Логин</label>
+            <input id="credentials-1-username" name="username" type="text" autocomplete="username">
+          </div>
+          <div class="field">
+            <label for="credentials-1-password">Пароль</label>
+            <input id="credentials-1-password" name="password" type="password" autocomplete="current-password">
+          </div>
+          <div class="actions">
+            <button type="submit">Войти</button>
+            <button type="reset">Очистить форму</button>
+          </div>
+        </form>
+        <form id="credentials-2" name="credentials-2" aria-labelledby="credentials-2-title" action="autofill-multiple-forms-success.html" method="post" autocomplete="on">
+          <h3 id="credentials-2-title">форма 2 логин-пароль</h3>
+          <div class="field">
+            <label for="credentials-2-username">Логин</label>
+            <input id="credentials-2-username" name="username" type="text" autocomplete="username">
+          </div>
+          <div class="field">
+            <label for="credentials-2-password">Пароль</label>
+            <input id="credentials-2-password" name="password" type="password" autocomplete="current-password">
+          </div>
+          <div class="actions">
+            <button type="submit">Войти</button>
+            <button type="reset">Очистить форму</button>
+          </div>
+        </form>
+        <form id="credentials-3" name="credentials-3" aria-labelledby="credentials-3-title" action="autofill-multiple-forms-success.html" method="post" autocomplete="on">
+          <h3 id="credentials-3-title">форма 3 логин-пароль</h3>
+          <div class="field">
+            <label for="credentials-3-username">Логин</label>
+            <input id="credentials-3-username" name="username" type="text" autocomplete="username">
+          </div>
+          <div class="field">
+            <label for="credentials-3-password">Пароль</label>
+            <input id="credentials-3-password" name="password" type="password" autocomplete="current-password">
+          </div>
+          <div class="actions">
+            <button type="submit">Войти</button>
+            <button type="reset">Очистить форму</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+  <script>
+    // Keep native fields independent; only intercept submission to discard values.
+    document.querySelectorAll('form').forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        window.location.assign(form.action);
+      });
+    });
+  </script>
+</body>
+</html>
