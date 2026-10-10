@@ -247,11 +247,11 @@
           <h3 id="credentials-1-title">форма 1 логин-пароль</h3>
           <div class="field">
             <label for="credentials-1-username">Логин</label>
-            <input id="credentials-1-username" name="username" type="text" autocomplete="username">
+            <input id="credentials-1-username" name="username" type="text" autocomplete="username" readonly>
           </div>
           <div class="field">
             <label for="credentials-1-password">Пароль</label>
-            <input id="credentials-1-password" name="password" type="password" autocomplete="current-password">
+            <input id="credentials-1-password" name="password" type="password" autocomplete="current-password" readonly>
           </div>
           <div class="actions">
             <button type="submit">Войти</button>
@@ -262,11 +262,11 @@
           <h3 id="credentials-2-title">форма 2 логин-пароль</h3>
           <div class="field">
             <label for="credentials-2-username">Логин</label>
-            <input id="credentials-2-username" name="username" type="text" autocomplete="username">
+            <input id="credentials-2-username" name="username" type="text" autocomplete="username" readonly>
           </div>
           <div class="field">
             <label for="credentials-2-password">Пароль</label>
-            <input id="credentials-2-password" name="password" type="password" autocomplete="current-password">
+            <input id="credentials-2-password" name="password" type="password" autocomplete="current-password" readonly>
           </div>
           <div class="actions">
             <button type="submit">Войти</button>
@@ -277,11 +277,11 @@
           <h3 id="credentials-3-title">форма 3 логин-пароль</h3>
           <div class="field">
             <label for="credentials-3-username">Логин</label>
-            <input id="credentials-3-username" name="username" type="text" autocomplete="username">
+            <input id="credentials-3-username" name="username" type="text" autocomplete="username" readonly>
           </div>
           <div class="field">
             <label for="credentials-3-password">Пароль</label>
-            <input id="credentials-3-password" name="password" type="password" autocomplete="current-password">
+            <input id="credentials-3-password" name="password" type="password" autocomplete="current-password" readonly>
           </div>
           <div class="actions">
             <button type="submit">Войти</button>
@@ -292,7 +292,20 @@
     </section>
   </main>
   <script>
-    // Keep native fields independent; only intercept submission to discard values.
+    var credentials = document.getElementById('credentials');
+    function enableCredentials(event) {
+      if (!event.target.matches('input')) return;
+      // Enable every copy so cross-form autofill remains testable after interaction.
+      credentials.querySelectorAll('input').forEach(function (input) {
+        input.readOnly = false;
+      });
+      credentials.removeEventListener('pointerdown', enableCredentials);
+      credentials.removeEventListener('focusin', enableCredentials);
+    }
+    credentials.addEventListener('pointerdown', enableCredentials);
+    credentials.addEventListener('focusin', enableCredentials);
+
+    // Discard submitted values instead of sending them to a server.
     document.querySelectorAll('form').forEach(function (form) {
       form.addEventListener('submit', function (event) {
         event.preventDefault();
