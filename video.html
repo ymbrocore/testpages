@@ -17,6 +17,18 @@
       margin-inline: auto;
     }
 
+    .playback-info {
+      font: 16px/1.5 system-ui, sans-serif;
+    }
+
+    .playback-info p {
+      margin: 0;
+    }
+
+    .playback-info p + p {
+      margin-top: 8px;
+    }
+
     video {
       display: block;
       width: 100%;
@@ -28,6 +40,11 @@
 </head>
 <body>
   <main>
+    <div class="playback-info">
+      <p lang="ru">Первое видео запускается вручную, второе — автоматически без звука, если браузер разрешает автозапуск.</p>
+      <p lang="en">The first video is started manually. The second starts automatically without sound if the browser allows autoplay.</p>
+    </div>
+
     <video controls playsinline>
       <source src="https://ymbrocore.github.io/testpages/inside.mp4" type="video/mp4">
     </video>
@@ -43,3 +60,4 @@
   </script>
 </body>
 </html>
+
