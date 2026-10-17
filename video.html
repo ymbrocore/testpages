@@ -1,15 +1,45 @@
-<html>
- <head>
+<!doctype html>
+<html lang="ru">
+<head>
   <meta charset="utf-8">
-  <title>video</title>
- </head>
- <body>
-  <video controls autoplay="autoplay">
-   <source src="https://ymbrocore.github.io/testpages/inside.mp4" type="video/mp4"> 
-  </video>
-  <br>
-    <video controls autoplay="autoplay">
-   <source src="https://ymbrocore.github.io/testpages/video.webm" type="video/webm"> 
-  </video>
- </body>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Видео</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 16px;
+    }
+
+    main {
+      display: grid;
+      gap: 16px;
+      width: min(100%, 720px, calc((100svh - 32px) * 16 / 9));
+      margin-inline: auto;
+    }
+
+    video {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: contain;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <video controls playsinline>
+      <source src="https://ymbrocore.github.io/testpages/inside.mp4" type="video/mp4">
+    </video>
+
+    <video id="autoplay-video" controls autoplay muted playsinline>
+      <source src="https://ymbrocore.github.io/testpages/video.webm" type="video/webm">
+    </video>
+  </main>
+  <script>
+    document.getElementById("autoplay-video").play().catch((error) => {
+      console.info("Autoplay did not start. Use the player controls.", error);
+    });
+  </script>
+</body>
 </html>
