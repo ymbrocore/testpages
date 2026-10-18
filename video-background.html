@@ -1,0 +1,725 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Видео в фоне — проверка заглушения</title>
+  <style>
+    :root { font: 16px/1.5 system-ui, -apple-system, sans-serif; color: #202b38; background: #f3f5f7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 1120px; margin: auto; padding: 28px 24px 48px; }
+    header { display: flex; justify-content: space-between; align-items: start; gap: 16px; margin-bottom: 24px; }
+    .eyebrow { color: #617080; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.2; margin: 6px 0 10px; letter-spacing: -.025em; }
+    h2 { font-size: 19px; margin: 0 0 14px; }
+    h3 { font-size: 16px; margin: 0 0 8px; }
+    p { margin: 8px 0; }
+    .muted { color: #607080; }
+    .small { font-size: 13px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, 1fr); gap: 20px; align-items: start; }
+    .card { padding: 20px; border: 1px solid #dfe4e9; border-radius: 14px; background: white; margin-bottom: 20px; }
+    .video-card { padding: 0; overflow: hidden; }
+    .video-content { padding: 18px 20px 20px; }
+    video { display: block; width: 100%; aspect-ratio: 16/9; background: #111820; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    button, select { font: inherit; }
+    button { min-height: 44px; border: 1px solid #cbd4de; border-radius: 9px; padding: 9px 14px; background: #fff; color: #26394d; cursor: pointer; }
+    button:hover { background: #f0f5fa; border-color: #9badbf; }
+    button:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px solid #65a5e4; outline-offset: 3px; }
+    button:disabled { cursor: default; opacity: .48; }
+    button.primary, button[aria-pressed="true"] { color: #fff; background: #245f9b; border-color: #245f9b; }
+    button.primary:hover, button[aria-pressed="true"]:hover { background: #194c7f; }
+    .mode-grid { display: grid; gap: 8px; margin-top: 16px; }
+    .mode-grid button { text-align: left; display: flex; justify-content: space-between; gap: 10px; }
+    code { font: .85em ui-monospace, SFMono-Regular, monospace; }
+    .badge { display: inline-block; border: 1px solid #d7e0e9; border-radius: 20px; padding: 5px 11px; font-size: 12px; background: #fff; white-space: nowrap; }
+    .status { border-left: 3px solid #9aa9b7; background: #f4f7fa; padding: 12px 14px; border-radius: 5px; margin: 12px 0; }
+    .status.observed { border-color: #3b8467; background: #eff8f3; }
+    .status.interrupted { border-color: #c17d35; background: #fff6e9; }
+    .status.insufficient { border-color: #8f9dad; background: #f3f5f7; }
+    .status strong { display: block; }
+    dl { display: grid; grid-template-columns: 1fr auto; margin: 0; font-size: 14px; }
+    dt, dd { margin: 0; padding: 6px 0; border-bottom: 1px solid #edf0f3; }
+    dd { font-family: ui-monospace, SFMono-Regular, monospace; text-align: right; }
+    ol { margin: 0; padding-left: 22px; }
+    li { margin-bottom: 10px; padding-left: 3px; }
+    .steps-note { margin-top: 14px; padding-top: 14px; border-top: 1px solid #e5e9ed; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #365b80; min-height: 32px; }
+    .result { padding: 16px 0; border-top: 1px solid #e1e7ed; }
+    .result:first-child { border-top: 0; padding-top: 0; }
+    .result-meta { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .table-scroll { overflow: auto; max-height: 360px; margin-top: 10px; }
+    table { border-collapse: collapse; width: 100%; font-size: 12px; white-space: nowrap; }
+    th, td { text-align: left; padding: 7px 9px; border-bottom: 1px solid #e6ebf0; }
+    th { color: #52687c; background: #f4f7fa; position: sticky; top: 0; }
+    td { font-family: ui-monospace, SFMono-Regular, monospace; }
+    .event-list { list-style: none; margin: 0; padding: 0; max-height: 360px; overflow: auto; }
+    .event-list li { font-size: 13px; display: grid; grid-template-columns: 72px 1fr; gap: 10px; border-top: 1px solid #edf0f3; padding: 8px 0; margin: 0; }
+    time { color: #687b8d; font-variant-numeric: tabular-nums; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+    .toolbar h2 { margin: 0; }
+    a { color: #235d96; }
+    [hidden] { display: none !important; }
+    footer { margin-top: 22px; color: #627487; font-size: 12px; }
+    @media (max-width: 760px) { main { padding: 20px 14px 32px; } .layout { display: block; } header { display: block; } header .badge { margin-top: 4px; } .card { padding: 16px; } .video-card { padding: 0; } .video-content { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <div class="eyebrow">Тестовая страница · HTML video</div>
+      <h1>Видео в фоне</h1>
+      <p class="muted">Два способа заглушения и журнал скрытой вкладки. Без Console.</p>
+    </div>
+    <span class="badge" id="session-badge">Новый прогон</span>
+  </header>
+  <div id="storage-note" class="status insufficient small" hidden></div>
+  <div id="reload-note" class="status interrupted small" hidden></div>
+  <div class="layout">
+    <section>
+      <div class="card video-card">
+        <video id="video" controls playsinline loop preload="metadata" aria-label="Проверяемое видео с аудиодорожкой">
+          <source src="https://ymbrocore.github.io/testpages/inside.mp4" type="video/mp4">
+          Браузер не поддерживает HTML video.
+        </video>
+        <div class="video-content">
+          <div class="row">
+            <button id="play" class="primary" type="button">Воспроизвести</button>
+            <button id="pause" type="button">Пауза</button>
+            <button id="new-run" type="button">Новый прогон</button>
+          </div>
+          <div class="mode-grid" aria-label="Способ заглушения">
+            <button type="button" data-mode="sound" aria-pressed="true"><span>Со звуком</span><code>muted=false · volume=1</code></button>
+            <button type="button" data-mode="muted" aria-pressed="false"><span>Заглушить через muted</span><code>muted=true · volume=1</code></button>
+            <button type="button" data-mode="volume-zero" aria-pressed="false"><span>Заглушить через volume=0</span><code>muted=false · volume=0</code></button>
+          </div>
+          <p class="small muted">Кнопки меняют свойства HTML-видео. Системную громкость для заглушения не использовать. Повтор ролика включён.</p>
+          <div id="media-error" class="status interrupted" role="alert" hidden></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Записать проверку фона</h2>
+        <p class="small muted">Выберите переход. Затем скройте страницу минимум на 10 секунд и вернитесь. Запись начнётся при <code>visibility=hidden</code>.</p>
+        <div class="row">
+          <button id="arm-tab" type="button">Другая вкладка</button>
+          <button id="arm-home" type="button">Кнопка «Домой»</button>
+          <button id="cancel-arm" type="button" hidden>Отменить ожидание</button>
+        </div>
+        <div id="recording-status" class="status" role="status" aria-live="polite">Сначала запустите видео со звуком, затем выберите способ заглушения.</div>
+        <p class="small muted">Метка обозначает выбранный вами сценарий. Сайт не определяет, перешли вы в другую вкладку или свернули приложение.</p>
+      </div>
+    </section>
+    <aside>
+      <div class="card">
+        <h2>Состояние плеера</h2>
+        <dl id="player-state"></dl>
+        <p class="small muted" id="sound-control">Перед заглушением убедитесь, что звук ролика слышен.</p>
+      </div>
+      <div class="card">
+        <h2>Как проверить</h2>
+        <ol class="small">
+          <li>В настройках приложения включите фоновое воспроизведение. Отключите показ видео поверх других приложений.</li>
+          <li>Запустите ролик со звуком. Нажмите одну из двух кнопок заглушения.</li>
+          <li>Запустите внешнюю музыку. Для проверки запуска ролика при звучащей музыке используйте «Пауза», затем «Воспроизвести».</li>
+          <li>Выберите «Другая вкладка» или «Кнопка „Домой“». Выполните выбранный переход. Подождите минимум 10 секунд и вернитесь к журналу.</li>
+          <li>Повторите проверку для второго перехода. Для второго способа заглушения нажмите «Новый прогон» и начните со звука.</li>
+        </ol>
+        <p class="small steps-note">Вручную проверьте музыку, медиауведомления, отсутствие PiP и возврат без нажатия Play. Страница не имеет доступа к этим состояниям Android.</p>
+      </div>
+    </aside>
+  </div>
+  <section class="card">
+    <div class="toolbar">
+      <h2>Журнал фоновых проверок</h2>
+      <button id="export" type="button">Скачать журнал JSON</button>
+    </div>
+    <div id="observations"><p class="muted">Пока нет завершённых проверок.</p></div>
+    <details>
+      <summary>Как читать результат</summary>
+      <p class="small"><strong>Продвижение подтверждено:</strong> позиция изменилась между двумя снимками, полученными в скрытой вкладке с интервалом не менее 10 секунд. Это не доказывает непрерывность воспроизведения в каждую секунду.</p>
+      <p class="small"><strong>Недостаточно данных:</strong> браузер мог приостановить JavaScript в фоне. Позиция после возврата не используется как доказательство.</p>
+      <p class="small"><strong>Зафиксирована пауза, ошибка или изменение состояния:</strong> в скрытой вкладке обнаружены пауза, завершение, ошибка видео или изменение настроек. Перемотка и повтор начинают новый интервал сравнения. Подробности есть в снимках и событиях.</p>
+      <p class="small">При уменьшении позиции, в том числе на границе повтора, начинается новый интервал сравнения. Страница не вызывает Play при скрытии или возвращении и не удерживает устройство активным.</p>
+    </details>
+  </section>
+  <section class="card">
+    <h2>События плеера</h2>
+    <ul id="events" class="event-list"></ul>
+  </section>
+  <footer>Видео: <a href="https://ymbrocore.github.io/testpages/inside.mp4">inside.mp4</a>. Журнал хранится в этой вкладке и скачивается только по кнопке. Самостоятельно на сервер не отправляется.</footer>
+</main>
+<script>
+// Copyright 2026 Yandex LLC. All rights reserved.
+
+const MediaEvidence = (() => {
+  const MAX_SAMPLES = 2000;
+  const MODES = {
+    muted: { muted: true, volume: 1 },
+    'volume-zero': { muted: false, volume: 0 },
+    sound: { muted: false, volume: 1 },
+  };
+
+  function createObservation({ id, label, mode, startedAt, minimumMs = 10000 }) {
+    if (!Object.hasOwn(MODES, mode)) {
+      throw new RangeError('Unknown media mode');
+    }
+    if (!Number.isFinite(startedAt) || !Number.isFinite(minimumMs) || minimumMs <= 0) {
+      throw new RangeError('Observation times must be finite and positive');
+    }
+
+    return {
+      id,
+      label,
+      mode,
+      startedAt,
+      minimumMs,
+      endedAt: null,
+      reason: null,
+      samples: [],
+      issues: [],
+      analysis: {
+        sampleCount: 0,
+        hiddenSampleCount: 0,
+        hiddenSpanMs: 0,
+        evidenceSpanMs: 0,
+        mediaAdvanceSeconds: 0,
+        evidenceStartAt: null,
+        evidenceEndAt: null,
+        maxSampleGapMs: 0,
+        interrupted: false,
+        previous: null,
+        segment: null,
+      },
+    };
+  }
+
+  function addIssue(observation, issue, interrupted = false) {
+    if (!observation.issues.includes(issue)) {
+      observation.issues.push(issue);
+    }
+    observation.analysis.interrupted ||= interrupted;
+  }
+
+  function recordIssue(observation, code, { interrupted = false } = {}) {
+    if (observation.endedAt !== null) {
+      return observation;
+    }
+    addIssue(observation, code, interrupted);
+    observation.analysis.segment = null;
+    observation.analysis.previous = null;
+    return observation;
+  }
+
+  function isValidSample(sample) {
+    return sample && Number.isFinite(sample.at) &&
+      Number.isFinite(sample.currentTime) && sample.currentTime >= 0 &&
+      (sample.visibility === 'hidden' || sample.visibility === 'visible') &&
+      typeof sample.paused === 'boolean' && typeof sample.ended === 'boolean' &&
+      typeof sample.muted === 'boolean' && typeof sample.seeking === 'boolean' &&
+      Number.isFinite(sample.volume) && sample.volume >= 0 && sample.volume <= 1 &&
+      Number.isFinite(sample.playbackRate) && sample.playbackRate > 0;
+  }
+
+  function appendSample(observation, sample) {
+    if (observation.endedAt !== null) {
+      return observation;
+    }
+
+    const analysis = observation.analysis;
+    analysis.sampleCount += 1;
+    observation.samples.push({ ...sample });
+    if (observation.samples.length > MAX_SAMPLES) {
+      observation.samples.shift();
+    }
+    if (!isValidSample(sample)) {
+      addIssue(observation, 'invalid_sample');
+      analysis.segment = null;
+      analysis.previous = null;
+      return observation;
+    }
+
+    const previous = analysis.previous;
+    analysis.previous = sample;
+    if (previous && sample.at < previous.at) {
+      addIssue(observation, 'non_monotonic_time');
+      analysis.segment = null;
+      return observation;
+    }
+    if (sample.at < observation.startedAt) {
+      addIssue(observation, 'non_monotonic_time');
+      analysis.segment = null;
+      return observation;
+    }
+    if (sample.visibility !== 'hidden') {
+      analysis.segment = null;
+      return observation;
+    }
+
+    analysis.hiddenSampleCount += 1;
+    const expected = MODES[observation.mode];
+    let blocked = false;
+    if (sample.muted !== expected.muted || sample.volume !== expected.volume) {
+      addIssue(observation, 'config_changed', true);
+      blocked = true;
+    }
+    if (sample.paused) {
+      addIssue(observation, 'paused', true);
+      blocked = true;
+    }
+    if (sample.ended) {
+      addIssue(observation, 'ended', true);
+      blocked = true;
+    }
+    if (sample.seeking) {
+      addIssue(observation, 'seek');
+      blocked = true;
+    }
+    if (blocked) {
+      analysis.segment = null;
+      return observation;
+    }
+
+    if (analysis.segment && sample.playbackRate !== analysis.segment.playbackRate) {
+      addIssue(observation, 'playback_rate_changed', true);
+      analysis.segment = null;
+    }
+    if (analysis.segment && sample.currentTime < analysis.segment.lastMediaTime) {
+      addIssue(observation, 'position_reset');
+      analysis.segment = null;
+    }
+    if (!analysis.segment) {
+      analysis.segment = {
+        at: sample.at,
+        mediaTime: sample.currentTime,
+        lastAt: sample.at,
+        lastMediaTime: sample.currentTime,
+        playbackRate: sample.playbackRate,
+      };
+      return observation;
+    }
+
+    const segment = analysis.segment;
+    const elapsed = sample.at - segment.at;
+    const advance = sample.currentTime - segment.mediaTime;
+    analysis.hiddenSpanMs = Math.max(analysis.hiddenSpanMs, elapsed);
+    analysis.maxSampleGapMs = Math.max(analysis.maxSampleGapMs, sample.at - segment.lastAt);
+    if (advance > 0 && elapsed >= analysis.evidenceSpanMs) {
+      analysis.evidenceSpanMs = elapsed;
+      analysis.mediaAdvanceSeconds = advance;
+      analysis.evidenceStartAt = segment.at;
+      analysis.evidenceEndAt = sample.at;
+    }
+    segment.lastAt = sample.at;
+    segment.lastMediaTime = sample.currentTime;
+    return observation;
+  }
+
+  function finishObservation(observation, { endedAt, reason }) {
+    if (observation.endedAt === null) {
+      observation.endedAt = endedAt;
+      observation.reason = reason;
+    }
+    return observation;
+  }
+
+  // All spans use only samples taken while hidden. Evidence records endpoint
+  // progress in one valid segment; even a long span does not prove continuous
+  // playback between samples. Retention limits do not discard aggregate evidence.
+  function summarizeObservation(observation) {
+    const analysis = observation.analysis;
+    const observed = analysis.evidenceSpanMs >= observation.minimumMs &&
+      analysis.mediaAdvanceSeconds > 0;
+    return {
+      status: analysis.interrupted ? 'interrupted' : observed ? 'observed' : 'insufficient',
+      hiddenSampleCount: analysis.hiddenSampleCount,
+      hiddenSpanMs: analysis.hiddenSpanMs,
+      evidenceSpanMs: analysis.evidenceSpanMs,
+      mediaAdvanceSeconds: analysis.mediaAdvanceSeconds,
+      evidenceStartAt: analysis.evidenceStartAt,
+      evidenceEndAt: analysis.evidenceEndAt,
+      maxSampleGapMs: analysis.maxSampleGapMs,
+      sampleCount: analysis.sampleCount,
+      retainedSampleCount: observation.samples.length,
+      discardedSampleCount: analysis.sampleCount - observation.samples.length,
+      minimumMs: observation.minimumMs,
+      issues: [...observation.issues],
+    };
+  }
+
+  return { createObservation, appendSample, finishObservation, summarizeObservation, recordIssue };
+})();
+
+// Copyright 2026 Yandex LLC. All rights reserved.
+
+(() => {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const video = $('video');
+  const STORAGE_KEY = 'video-background-journal-v1';
+  const MAX_EVENTS = 400;
+  const MAX_OBSERVATIONS = 20;
+  const MODE_NAMES = {sound: 'Со звуком', muted: 'muted=true, volume=1', 'volume-zero': 'muted=false, volume=0'};
+  const ISSUE_NAMES = {
+    paused: 'Зафиксировано paused=true.',
+    ended: 'Ролик завершился.',
+    config_changed: 'Свойства muted или volume отличаются от выбранного способа заглушения.',
+    seek: 'Перемотка или переход на начало: интервал сравнения начат заново.',
+    position_reset: 'Позиция уменьшилась: интервал сравнения начат заново.',
+    playback_rate_changed: 'Изменилась скорость воспроизведения.',
+    invalid_sample: 'Получен неполный снимок состояния.',
+    non_monotonic_time: 'Нарушен порядок временных отметок.',
+    media_error: 'В скрытой вкладке произошла ошибка видео.',
+    source_changed: 'В скрытой вкладке изменились источник или длительность видео.',
+    volume_event: 'Получено событие изменения громкости: интервал сравнения начат заново.',
+  };
+  const EVENT_NAMES = {
+    play: 'Запрошено воспроизведение', playing: 'Воспроизведение началось', pause: 'Пауза',
+    ended: 'Ролик завершился', waiting: 'Ожидание данных', stalled: 'Загрузка приостановлена',
+    seeking: 'Начало перемотки или повтора', seeked: 'Перемотка или повтор завершены',
+    volumechange: 'Изменились muted или volume', ratechange: 'Изменилась скорость',
+    loadedmetadata: 'Получены параметры видео', error: 'Ошибка видео',
+    emptied: 'Источник видео очищен', durationchange: 'Изменилась длительность видео',
+  };
+  let active = null;
+  let armed = null;
+  let mode = 'sound';
+  let soundPlayed = false;
+  let lastSampleAt = -Infinity;
+  let storageAvailable = true;
+  let observations = [];
+  let events = [];
+  let runNumber = 1;
+  let runId = makeId();
+  let reloadDetected = false;
+
+  function makeId() {
+    return typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  function snapshot() {
+    return {
+      at: performance.now(), wallTime: new Date().toISOString(),
+      visibility: document.visibilityState, currentTime: video.currentTime,
+      paused: video.paused, ended: video.ended, muted: video.muted,
+      volume: video.volume, seeking: video.seeking, playbackRate: video.playbackRate,
+      duration: Number.isFinite(video.duration) ? video.duration : null,
+      readyState: video.readyState, networkState: video.networkState,
+    };
+  }
+
+  function text(tag, value, className) {
+    const element = document.createElement(tag);
+    element.textContent = value;
+    if (className) element.className = className;
+    return element;
+  }
+
+  function formatSeconds(value) {
+    return Number.isFinite(value) ? value.toFixed(2) : '—';
+  }
+
+  function recordEvent(name, detail = '') {
+    events.push({name, detail, runId, runNumber, ...snapshot()});
+    events = events.slice(-MAX_EVENTS);
+    persist();
+    if (document.visibilityState === 'visible') renderEvents();
+  }
+
+  function persist() {
+    if (!storageAvailable) return;
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        version: 1, runNumber, savedAt: new Date().toISOString(), observations, events,
+      }));
+    } catch {
+      storageAvailable = false;
+      $('storage-note').hidden = false;
+      $('storage-note').textContent = 'Хранилище вкладки недоступно. Журнал доступен до закрытия или перезагрузки страницы; сохраните его кнопкой «Скачать журнал JSON».';
+    }
+  }
+
+  function restore() {
+    try {
+      const previous = JSON.parse(sessionStorage.getItem(STORAGE_KEY));
+      if (!previous || previous.version !== 1 || !Array.isArray(previous.observations) || !Array.isArray(previous.events)) return;
+      observations = previous.observations.filter((item) => item && item.analysis && Array.isArray(item.samples) && Array.isArray(item.issues)).slice(-MAX_OBSERVATIONS);
+      events = previous.events.filter((item) => item && typeof item.name === 'string').slice(-MAX_EVENTS);
+      runNumber = (Number(previous.runNumber) || 1) + 1;
+      reloadDetected = true;
+      for (const observation of observations) {
+        if (observation.endedAt === null) {
+          MediaEvidence.finishObservation(observation, {endedAt: observation.samples.at(-1)?.at ?? observation.startedAt, reason: 'document_recreated'});
+          observation.incomplete = true;
+        }
+        observation.restored = true;
+      }
+      $('reload-note').hidden = false;
+      $('reload-note').textContent = 'Создан новый документ: страница была загружена повторно. Прошлый журнал сохранён как история; предыдущая проверка не продолжается. Видео нужно запустить вручную.';
+    } catch {
+      observations = [];
+      events = [];
+      storageAvailable = false;
+      $('storage-note').hidden = false;
+      $('storage-note').textContent = 'Не удалось прочитать хранилище вкладки. Новый журнал доступен до закрытия страницы и может быть скачан в JSON.';
+    }
+  }
+
+  function takeHiddenSample(force = false) {
+    if (!active || document.visibilityState !== 'hidden') return;
+    const state = snapshot();
+    if (!force && state.at - lastSampleAt < 900) return;
+    lastSampleAt = state.at;
+    MediaEvidence.appendSample(active, state);
+    persist();
+  }
+
+  function closeObservation(reason) {
+    if (!active) return;
+    active.returnSnapshot = snapshot();
+    MediaEvidence.finishObservation(active, {endedAt: performance.now(), reason});
+    active = null;
+    persist();
+    renderObservations();
+  }
+
+  function canArm() {
+    const exactMode = mode === 'muted' ? video.muted && video.volume === 1 :
+      mode === 'volume-zero' ? !video.muted && video.volume === 0 : false;
+    return soundPlayed && exactMode && !video.paused && !video.ended && !video.seeking && !video.error && video.readyState >= 2;
+  }
+
+  function arm(label) {
+    if (!canArm()) return;
+    armed = label;
+    recordEvent('Ожидание скрытия страницы', label);
+    renderState();
+  }
+
+  function setMode(nextMode) {
+    armed = null;
+    mode = nextMode;
+    if (mode === 'muted') {
+      video.muted = true;
+      video.volume = 1;
+    } else if (mode === 'volume-zero') {
+      video.volume = 0;
+      video.muted = false;
+    } else {
+      video.volume = 1;
+      video.muted = false;
+    }
+    recordEvent('Выбран способ заглушения', MODE_NAMES[mode]);
+    renderState();
+  }
+
+  function renderState() {
+    const state = snapshot();
+    $('session-badge').textContent = `Прогон ${runNumber} · ${MODE_NAMES[mode]}`;
+    $('player-state').replaceChildren();
+    for (const [key, value] of Object.entries({
+      visibility: state.visibility, currentTime: `${formatSeconds(state.currentTime)} с`,
+      paused: state.paused, ended: state.ended, muted: state.muted,
+      volume: state.volume, playbackRate: state.playbackRate, loop: video.loop,
+    })) $('player-state').append(text('dt', key), text('dd', String(value)));
+    for (const button of document.querySelectorAll('[data-mode]')) {
+      button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
+    }
+    const ready = canArm();
+    $('arm-tab').disabled = !ready;
+    $('arm-home').disabled = !ready;
+    $('cancel-arm').hidden = !armed;
+    $('sound-control').textContent = soundPlayed ?
+      'В этом прогоне ролик запускался с muted=false и volume=1. Слышимость звука подтвердите самостоятельно.' :
+      'Перед заглушением запустите ролик со звуком и убедитесь, что звук слышен.';
+    let status = 'Сначала запустите видео со звуком, затем выберите способ заглушения.';
+    if (armed) status = `Ожидание: ${armed}. Скройте страницу минимум на 10 секунд. После возврата результат появится в журнале.`;
+    else if (active) status = 'Записывается состояние скрытой вкладки.';
+    else if (ready) status = 'Готово к записи. Выберите переход в фон.';
+    else if (soundPlayed && mode !== 'sound') status = 'Для записи запустите заглушённое видео. Свойства плеера должны соответствовать выбранной кнопке.';
+    $('recording-status').textContent = status;
+  }
+
+  function renderObservations() {
+    const container = $('observations');
+    container.replaceChildren();
+    if (!observations.length) {
+      container.append(text('p', 'Пока нет завершённых проверок.', 'muted'));
+      return;
+    }
+    for (const observation of [...observations].reverse()) {
+      const summary = MediaEvidence.summarizeObservation(observation);
+      const item = text('article', '', 'result');
+      const meta = text('div', '', 'result-meta');
+      meta.append(text('h3', `${observation.label} · прогон ${observation.runNumber}`), text('span', MODE_NAMES[observation.mode], 'small muted'));
+      item.append(meta);
+      const status = text('div', '', `status ${summary.status}`);
+      let title = {observed: 'Продвижение в фоне подтверждено', interrupted: 'Зафиксирована пауза, ошибка или изменение состояния', insufficient: 'Недостаточно данных для подтверждения'}[summary.status];
+      if (observation.endedAt === null) title = 'Проверка выполняется';
+      status.append(text('strong', title));
+      status.append(text('p', `Скрытых снимков: ${summary.hiddenSampleCount}. Интервал с продвижением: ${formatSeconds(summary.evidenceSpanMs / 1000)} с. Изменение позиции: ${formatSeconds(summary.mediaAdvanceSeconds)} с.`, 'small'));
+      if (summary.status === 'insufficient') {
+        status.append(text('p', 'Нужны два снимка, полученные именно в hidden с интервалом ≥10 с и ростом позиции. Позиция после возврата в расчёт не входит.', 'small'));
+      }
+      if (observation.restored || observation.incomplete) status.append(text('p', observation.incomplete ? 'Проверка не была завершена до повторной загрузки документа.' : 'История из предыдущего документа.', 'small'));
+      for (const issue of summary.issues) status.append(text('p', ISSUE_NAMES[issue] || issue, 'small'));
+      item.append(status);
+      const details = document.createElement('details');
+      details.append(text('summary', 'Снимки состояния и момент возврата'));
+      const scroll = text('div', '', 'table-scroll');
+      const table = document.createElement('table');
+      const head = document.createElement('thead');
+      const headings = document.createElement('tr');
+      for (const label of ['От начала, с', 'visibility', 'currentTime', 'paused', 'ended', 'muted', 'volume', 'seeking']) headings.append(text('th', label));
+      head.append(headings);
+      table.append(head);
+      const body = document.createElement('tbody');
+      const samples = observation.samples.slice(-200);
+      if (observation.returnSnapshot) samples.push({...observation.returnSnapshot, boundary: true});
+      for (const sample of samples) {
+        const row = document.createElement('tr');
+        const values = [formatSeconds((sample.at - observation.startedAt) / 1000), sample.visibility + (sample.boundary ? ' (граница, вне расчёта)' : ''), formatSeconds(sample.currentTime), sample.paused, sample.ended, sample.muted, sample.volume, sample.seeking];
+        for (const value of values) row.append(text('td', String(value)));
+        body.append(row);
+      }
+      table.append(body);
+      scroll.append(table);
+      details.append(scroll, text('p', 'На экране показаны последние 200 снимков проверки. Скачанный журнал содержит все сохранённые снимки (до 2000 на проверку).', 'small muted'));
+      item.append(details);
+      container.append(item);
+    }
+  }
+
+  function renderEvents() {
+    const container = $('events');
+    container.replaceChildren();
+    for (const event of events.slice(-80).reverse()) {
+      const item = document.createElement('li');
+      const clock = text('time', new Date(event.wallTime).toLocaleTimeString('ru-RU', {hour12: false}));
+      const label = `${event.name}${event.detail ? ` — ${event.detail}` : ''} · ${event.visibility}, t=${formatSeconds(event.currentTime)}, paused=${event.paused}, muted=${event.muted}, volume=${event.volume}`;
+      item.append(clock, text('span', label));
+      container.append(item);
+    }
+  }
+
+  $('play').addEventListener('click', async () => {
+    try {
+      await video.play();
+      $('media-error').hidden = true;
+    } catch (error) {
+      $('media-error').hidden = false;
+      $('media-error').textContent = `Не удалось запустить видео: ${error.name}. Нажмите Play в самом плеере или начните новый прогон.`;
+      recordEvent('Ошибка запуска', error.name);
+    }
+    renderState();
+  });
+  $('pause').addEventListener('click', () => { video.pause(); renderState(); });
+  $('new-run').addEventListener('click', () => {
+    closeObservation('new_run');
+    armed = null;
+    video.pause();
+    if (video.readyState > 0) video.currentTime = 0;
+    video.playbackRate = 1;
+    soundPlayed = false;
+    runId = makeId();
+    runNumber += 1;
+    setMode('sound');
+    recordEvent('Начат новый прогон');
+    renderState();
+  });
+  for (const button of document.querySelectorAll('[data-mode]')) button.addEventListener('click', () => setMode(button.dataset.mode));
+  $('arm-tab').addEventListener('click', () => arm('Другая вкладка'));
+  $('arm-home').addEventListener('click', () => arm('Кнопка «Домой»'));
+  $('cancel-arm').addEventListener('click', () => { armed = null; recordEvent('Ожидание скрытия отменено'); renderState(); });
+
+  document.addEventListener('visibilitychange', () => {
+    recordEvent(document.visibilityState === 'hidden' ? 'Страница скрыта' : 'Страница видима');
+    if (document.visibilityState === 'hidden') {
+      if (armed) {
+        active = MediaEvidence.createObservation({id: makeId(), label: armed, mode, startedAt: performance.now()});
+        Object.assign(active, {runId, runNumber, source: video.currentSrc, startedWallTime: new Date().toISOString()});
+        observations.push(active);
+        observations = observations.slice(-MAX_OBSERVATIONS);
+        armed = null;
+        lastSampleAt = -Infinity;
+        takeHiddenSample(true);
+      }
+    } else {
+      closeObservation('visible');
+      renderState();
+      renderEvents();
+    }
+  });
+
+  video.addEventListener('timeupdate', () => {
+    if (document.visibilityState === 'hidden') takeHiddenSample();
+    else renderState();
+  });
+  for (const eventName of Object.keys(EVENT_NAMES)) {
+    video.addEventListener(eventName, () => {
+      if (eventName === 'playing' && mode === 'sound' && !video.muted && video.volume === 1) soundPlayed = true;
+      if (active && document.visibilityState === 'hidden') {
+        if (eventName === 'error') MediaEvidence.recordIssue(active, 'media_error', {interrupted: true});
+        if (eventName === 'emptied' || eventName === 'durationchange') MediaEvidence.recordIssue(active, 'source_changed', {interrupted: true});
+        if (eventName === 'seeking') MediaEvidence.recordIssue(active, 'seek');
+        if (eventName === 'ratechange') MediaEvidence.recordIssue(active, 'playback_rate_changed', {interrupted: true});
+        if (eventName === 'volumechange') {
+          const matches = mode === 'muted' ? video.muted && video.volume === 1 : !video.muted && video.volume === 0;
+          MediaEvidence.recordIssue(active, matches ? 'volume_event' : 'config_changed', {interrupted: !matches});
+        }
+      }
+      takeHiddenSample(true);
+      recordEvent(EVENT_NAMES[eventName]);
+      if (eventName === 'error') {
+        $('media-error').hidden = false;
+        $('media-error').textContent = `Не удалось загрузить видео (код ${video.error?.code ?? 'неизвестен'}). Проверьте доступность inside.mp4 и обновите страницу.`;
+      }
+      if (document.visibilityState === 'visible') renderState();
+    });
+  }
+  setInterval(() => {
+    if (document.visibilityState === 'hidden') takeHiddenSample();
+    else renderState();
+  }, 1000);
+  window.addEventListener('pagehide', (event) => {
+    takeHiddenSample(true);
+    if (!event.persisted) closeObservation('pagehide');
+    recordEvent(event.persisted ? 'Документ сохранён в BFCache' : 'Документ покинут');
+  });
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      closeObservation('bfcache_return');
+      recordEvent('Документ восстановлен из BFCache');
+      renderState();
+    }
+  });
+  $('export').addEventListener('click', () => {
+    const report = {
+      schemaVersion: 1, exportedAt: new Date().toISOString(), page: location.origin + location.pathname,
+      userAgent: navigator.userAgent, reloadDetected, runNumber,
+      interpretation: 'Only hidden samples establish background progress. A visible return snapshot is excluded. External audio, notifications and PiP require manual checks.',
+      observations: observations.map((observation) => ({...observation, summary: MediaEvidence.summarizeObservation(observation)})), events,
+    };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(report, null, 2)], {type: 'application/json'}));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `video-background-${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+
+  restore();
+  recordEvent('Открыта тестовая страница');
+  renderState();
+  renderObservations();
+  renderEvents();
+})();
+
+</script>
+</body>
+</html>
