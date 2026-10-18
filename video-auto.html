@@ -41,11 +41,11 @@
 <body>
   <main>
     <div class="playback-info">
-      <p lang="ru">Первое видео запускается автоматически без звука, если браузер разрешает автозапуск. Второе видео запускается вручную.</p>
-      <p lang="en">The first video starts automatically without sound if the browser allows autoplay. The second video is started manually.</p>
+      <p lang="ru">Первое видео запускается автоматически со звуком, если браузер разрешает автозапуск. Второе видео запускается вручную.</p>
+      <p lang="en">The first video starts automatically with sound if the browser allows autoplay. The second video is started manually.</p>
     </div>
 
-    <video id="autoplay-video" controls autoplay muted playsinline>
+    <video id="autoplay-video" controls autoplay playsinline>
       <source src="https://ymbrocore.github.io/testpages/inside.mp4" type="video/mp4">
     </video>
 
@@ -60,4 +60,3 @@
   </script>
 </body>
 </html>
-
