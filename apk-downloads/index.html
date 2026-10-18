@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>APK для скачивания</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #f4f6fa;
+        color: #182335;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      main {
+        width: min(100% - 40px, 920px);
+        margin: 0 auto;
+        padding: 72px 0;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: #4665b2;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(30px, 5vw, 44px);
+        letter-spacing: -0.035em;
+        line-height: 1.15;
+      }
+
+      .intro {
+        margin: 16px 0 32px;
+        color: #566278;
+        font-size: 17px;
+      }
+
+      .files {
+        display: grid;
+        gap: 16px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .file {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 28px;
+        border: 1px solid #e0e6ef;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 4px 16px #18233504;
+      }
+
+      .file-info {
+        min-width: 0;
+      }
+
+      .file-type {
+        display: inline-block;
+        margin: 0 0 10px;
+        padding: 3px 8px;
+        border-radius: 5px;
+        background: #eef2f8;
+        color: #566278;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+      }
+
+      h2 {
+        margin: 0;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+        font-size: clamp(14px, 2.5vw, 16px);
+        font-weight: 600;
+        overflow-wrap: anywhere;
+      }
+
+      .note {
+        margin: 10px 0 0;
+        color: #566278;
+        font-size: 14px;
+      }
+
+      .download {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 48px;
+        padding: 12px 20px;
+        border-radius: 10px;
+        background: #315bd3;
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .download:hover {
+        background: #254bb7;
+      }
+
+      .download:focus-visible {
+        outline: 3px solid #182335;
+        outline-offset: 4px;
+      }
+
+      .download svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      @media (max-width: 640px) {
+        main {
+          padding: 40px 0;
+        }
+
+        .file {
+          align-items: stretch;
+          flex-direction: column;
+          gap: 20px;
+          padding: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Загрузки</p>
+        <h1>APK для скачивания</h1>
+        <p class="intro">Выберите файл, чтобы скачать APK.</p>
+      </header>
+
+      <ul class="files" aria-label="Файлы APK">
+        <li class="file">
+          <div class="file-info">
+            <span class="file-type">APK</span>
+            <h2>com.amtso.mobiletestfile.apk</h2>
+            <p class="note" id="amtso-note">Пока файл не считается опасным.</p>
+          </div>
+          <a class="download" href="./com.amtso.mobiletestfile.apk" download="com.amtso.mobiletestfile.apk" aria-label="Скачать APK com.amtso.mobiletestfile.apk" aria-describedby="amtso-note">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/>
+            </svg>
+            Скачать APK
+          </a>
+        </li>
+        <li class="file">
+          <div class="file-info">
+            <span class="file-type">APK</span>
+            <h2>com.androidantivirus.testvirus_1.8.apk</h2>
+          </div>
+          <a class="download" href="./com.androidantivirus.testvirus_1.8.apk" download="com.androidantivirus.testvirus_1.8.apk" aria-label="Скачать APK com.androidantivirus.testvirus_1.8.apk">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/>
+            </svg>
+            Скачать APK
+          </a>
+        </li>
+        <li class="file">
+          <div class="file-info">
+            <span class="file-type">APK</span>
+            <h2>locker.apk</h2>
+          </div>
+          <a class="download" href="./locker.apk" download="locker.apk" aria-label="Скачать APK locker.apk">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/>
+            </svg>
+            Скачать APK
+          </a>
+        </li>
+      </ul>
+    </main>
+  </body>
+</html>
