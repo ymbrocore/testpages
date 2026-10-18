@@ -41,23 +41,18 @@
 <body>
   <main>
     <div class="playback-info">
-      <p lang="ru">Первое видео запускается вручную, второе — автоматически без звука, если браузер разрешает автозапуск.</p>
-      <p lang="en">The first video is started manually. The second starts automatically without sound if the browser allows autoplay.</p>
+      <p lang="ru">Оба видео запускаются вручную.</p>
+      <p lang="en">Both videos are started manually.</p>
     </div>
 
     <video controls playsinline>
       <source src="https://ymbrocore.github.io/testpages/inside.mp4" type="video/mp4">
     </video>
 
-    <video id="autoplay-video" controls autoplay muted playsinline>
+    <video controls muted playsinline>
       <source src="https://ymbrocore.github.io/testpages/video.webm" type="video/webm">
     </video>
   </main>
-  <script>
-    document.getElementById("autoplay-video").play().catch((error) => {
-      console.info("Autoplay did not start. Use the player controls.", error);
-    });
-  </script>
 </body>
 </html>
 
