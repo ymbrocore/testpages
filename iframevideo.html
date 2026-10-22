@@ -1,9 +1,58 @@
-<html>
- <head>
+<!doctype html>
+<html lang="ru">
+<head>
   <meta charset="utf-8">
-  <title>video</title>
- </head>
- <body>
- <iframe width="1280" height="720" src="https://www.youtube.com/embed/wU3Rp4ZgURQ" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
- </body>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Видео в iframe</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 16px;
+      font: 16px/1.5 system-ui, sans-serif;
+    }
+
+    main {
+      max-width: 960px;
+      margin-inline: auto;
+    }
+
+    h1 {
+      font-size: 24px;
+    }
+
+    iframe {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Видео в iframe</h1>
+    <p>Нажмите кнопку воспроизведения в плеере. Автозапуск отключён.</p>
+    <iframe
+      title="WIKITONGUES: Orsolya speaking Hungarian"
+      width="1280"
+      height="720"
+      src="https://commons.wikimedia.org/w/index.php?title=File:WIKITONGUES-_Orsolya_speaking_Hungarian.webm&amp;embedplayer=yes"
+      allow="fullscreen; picture-in-picture; autoplay 'none'"
+      allowfullscreen>
+    </iframe>
+    <p>
+      Страница: <code>ymbrocore.github.io</code>.<br>
+      iframe: <code>commons.wikimedia.org</code>.<br>
+      Видеофайл: <code>upload.wikimedia.org</code>.
+    </p>
+    <p>
+      <a href="https://commons.wikimedia.org/wiki/File:WIKITONGUES-_Orsolya_speaking_Hungarian.webm">WIKITONGUES: Orsolya speaking Hungarian</a>
+      — Wikitongues,
+      <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.
+      Видео без изменений.
+    </p>
+  </main>
+</body>
 </html>
