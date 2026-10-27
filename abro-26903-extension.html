@@ -1,0 +1,108 @@
+<!doctype html>
+<!-- Copyright 2026 Yandex LLC. All rights reserved. -->
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Тестовое расширение ABRO-26903 Download Test: скачивание, установка и проверка подтверждения загрузок из окна расширения.">
+  <title>ABRO-26903 Download Test — ymbrocore</title>
+  <link rel="canonical" href="https://ymbrocore.github.io/testpages/abro-26903-extension.html">
+  <style>
+    :root { color-scheme: light; --ink: #17243a; --muted: #556579; --line: #dce3ed; --blue: #244cbb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f6f8fc; color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    :focus-visible { outline: 3px solid #2459de; outline-offset: 4px; }
+    code { font: .88em/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 32px; }
+    .topbar { border-bottom: 1px solid var(--line); background: white; }
+    .topbar .wrap { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 24px; min-height: 76px; padding-block: 16px; }
+    .brand { display: flex; align-items: center; gap: 12px; color: var(--ink); font-size: 15px; font-weight: 650; text-decoration: none; }
+    .brand-mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--ink); color: white; font: 700 16px ui-monospace, monospace; }
+    .back { font-size: 14px; }
+    .hero { padding: 36px 0 24px; }
+    .eyebrow { margin: 0 0 8px; color: var(--blue); font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(29px, 5vw, 40px); line-height: 1.2; letter-spacing: -.035em; overflow-wrap: anywhere; }
+    .intro { max-width: 760px; margin: 12px 0 0; color: var(--muted); font-size: 17px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 14px 0 0; color: var(--muted); font-size: 13px; }
+    .download-card { padding: 24px; border: 1px solid var(--line); border-radius: 14px; background: white; }
+    .download { display: inline-block; padding: 11px 18px; border-radius: 8px; background: var(--blue); color: white; font-size: 15px; font-weight: 650; text-decoration: none; }
+    .download:hover { background: #193c9c; text-decoration: underline; }
+    .address { margin: 16px 0 0; color: var(--muted); font-size: 13px; }
+    .address a { display: block; margin-top: 5px; font: 12px/1.8 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+    .instructions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 24px; }
+    .card { padding: 24px; border: 1px solid var(--line); border-radius: 14px; background: white; }
+    h2 { margin: 0 0 14px; font-size: 21px; line-height: 1.4; letter-spacing: -.02em; }
+    ol { margin: 0; padding-left: 22px; }
+    li + li { margin-top: 10px; }
+    .card p, .card li, .card dd { font-size: 14px; }
+    .card p { margin: 0 0 14px; }
+    .condition { padding: 12px 14px; border-left: 3px solid var(--blue); background: #f3f6fd; }
+    dl { margin: 0; }
+    dt { margin-top: 14px; font-size: 14px; font-weight: 650; }
+    dd { margin: 3px 0 0; color: var(--muted); }
+    .card .popup-note { margin: 18px 0 0; font-weight: 650; }
+    .card .filename { margin: 12px 0 0; color: var(--muted); }
+    footer { margin-top: 30px; padding: 18px 0 30px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    footer p { margin: 0; }
+    @media (max-width: 760px) {
+      .wrap { padding-inline: 20px; }
+      .topbar .wrap { min-height: 66px; }
+      .hero { padding-top: 28px; }
+      .intro { font-size: 16px; }
+      .instructions { grid-template-columns: minmax(0, 1fr); gap: 18px; margin-top: 18px; }
+      .download-card, .card { padding: 20px; }
+    }
+    @media print { body { background: white; } .wrap { max-width: none; padding: 0; } .card { break-inside: avoid; } .download { background: white; color: black; border: 1px solid black; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <a class="brand" href="https://ymbrocore.github.io/testpages/"><span class="brand-mark" aria-hidden="true">/t</span><span>ymbrocore / testpages</span></a>
+      <a class="back" href="https://ymbrocore.github.io/testpages/">← В каталог страниц</a>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="hero">
+      <p class="eyebrow">Тестовое расширение</p>
+      <h1>ABRO-26903 Download Test</h1>
+      <p class="intro">Расширение для проверки подтверждения загрузок из окна расширения. Две кнопки запрашивают загрузку одного или двух текстовых файлов.</p>
+      <p class="meta"><span>Версия 1.0</span><span>Manifest V3</span><span>Разрешение: <code>downloads</code></span></p>
+    </div>
+    <section class="download-card" aria-label="Скачать расширение">
+      <a class="download" href="https://ymbrocore.github.io/testpages/abro-26903-test-extension.zip" download="test_extension.zip">Скачать test_extension.zip</a>
+      <p class="address">Полный адрес архива:
+        <a href="https://ymbrocore.github.io/testpages/abro-26903-test-extension.zip" download="test_extension.zip">https://ymbrocore.github.io/testpages/abro-26903-test-extension.zip</a>
+      </p>
+    </section>
+    <div class="instructions">
+      <section class="card" aria-labelledby="installation-title">
+        <h2 id="installation-title">Установка</h2>
+        <ol>
+          <li>Скачайте архив кнопкой выше. Распакуйте ZIP. Внутри находится папка <code>test_extension</code> с файлом <code>manifest.json</code>.</li>
+          <li>В Яндекс Браузере откройте <code>browser://extensions</code>. Включите режим разработчика.</li>
+          <li>Загрузите распакованное расширение. На Android выберите <code>test_extension/manifest.json</code>. На компьютере выберите папку <code>test_extension</code>.</li>
+          <li>Откройте <strong>ABRO-26903 Download Test</strong> из меню расширений браузера.</li>
+        </ol>
+      </section>
+      <section class="card" aria-labelledby="usage-title">
+        <h2 id="usage-title">Как проверить загрузки</h2>
+        <p class="condition">Для проверки диалога включите подтверждение загрузок в настройках браузера.</p>
+        <p>В окне расширения доступны две кнопки:</p>
+        <dl>
+          <dt>Download one file</dt>
+          <dd>Запрашивает загрузку одного текстового файла.</dd>
+          <dt>Download two files</dt>
+          <dd>Запрашивает загрузку двух текстовых файлов.</dd>
+        </dl>
+        <p class="popup-note">Оставьте окно расширения открытым при запуске загрузки.</p>
+        <p class="filename">Имена файлов: <code>abro-26903-&lt;timestamp&gt;-&lt;index&gt;.txt</code>. Текст формируется внутри расширения.</p>
+      </section>
+    </div>
+    <footer>
+      <p><a href="https://st.yandex-team.ru/ABRO-26903">Источник: ABRO-26903</a> · Доступ сотрудникам.</p>
+    </footer>
+  </main>
+</body>
+</html>
