@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Каталог тестовых страниц ymbrocore: краткие описания и полные ссылки на страницы раздела testpages.">
+  <meta name="description" content="Каталог тестовых страниц ymbrocore с описаниями и полными ссылками. Тестовое расширение Browser API Test: скачивание и установка.">
   <title>Тестовые страницы — ymbrocore</title>
   <link rel="canonical" href="https://ymbrocore.github.io/testpages/">
   <style>
@@ -65,6 +65,21 @@
     .empty { padding: 50px 24px; border: 1px dashed #bccbe0; border-radius: 14px; text-align: center; }
     .empty h2 { display: block; margin-bottom: 8px; }
     .empty p { margin: 0; color: var(--muted); }
+    .extension-card { margin-top: 34px; padding: 26px; border: 1px solid var(--line); border-radius: 14px; background: white; scroll-margin-top: 24px; }
+    .extension-meta { margin: 0 0 8px; color: var(--blue); font-size: 12px; font-weight: 650; }
+    .extension-card h2 { font-size: 24px; }
+    .extension-intro { max-width: 80ch; margin: 12px 0 16px; color: var(--muted); font-size: 15px; }
+    .extension-note { margin: 16px 0; padding: 12px 16px; border-left: 3px solid var(--blue); background: #f3f6fd; color: var(--muted); font-size: 13px; }
+    .extension-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px; }
+    .extension-download { display: inline-block; padding: 9px 16px; border-radius: 8px; background: var(--blue); color: white; font-size: 14px; font-weight: 650; text-decoration: none; }
+    .extension-download:hover { background: #193c9c; text-decoration: underline; }
+    .extension-repository { min-width: 0; font: 12px/1.7 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+    .extension-details { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+    .extension-details summary { color: var(--ink); font-weight: 650; cursor: pointer; }
+    .extension-details ol { margin: 14px 0; padding-left: 22px; }
+    .extension-details li + li { margin-top: 8px; }
+    .extension-details code { overflow-wrap: anywhere; }
+    .extension-details p { margin: 12px 0 0; }
     .footnote { margin: 38px 0 0; padding: 18px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
     footer { padding: 12px 0 34px; color: var(--muted); font-size: 12px; }
     footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
@@ -75,6 +90,7 @@
       .intro { font-size: 16px; }
       .tools { padding: 18px; }
       .page { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 19px; }
+      .extension-card { padding: 19px; }
       .section-number { display: none; }
       .repo-link { font-size: 12px; }
     }
@@ -95,7 +111,7 @@
       <p class="eyebrow">Каталог для тестирования</p>
       <h1>Тестовые страницы</h1>
       <p class="intro">Страницы раздела <strong>/testpages</strong>: что находится на каждой странице и по какому адресу её открыть.</p>
-      <p class="summary"><strong>34 страницы</strong><span class="dot" aria-hidden="true">·</span><span>6 разделов</span><span class="dot" aria-hidden="true">·</span><span>Полные ссылки</span></p>
+      <p class="summary"><strong>34 страницы</strong><span class="dot" aria-hidden="true">·</span><span>6 разделов</span><span class="dot" aria-hidden="true">·</span><span>Полные ссылки</span><span class="dot" aria-hidden="true">·</span><a href="#browser-api-test">Тестовое расширение</a></p>
     </div>
     <div class="tools" id="tools" hidden>
       <div class="search-row"><div class="search-field">
@@ -402,9 +418,30 @@
       </section>
     </div>
     <div class="empty" id="empty" hidden><h2>Страницы не найдены</h2><p>Измените поисковый запрос или выберите другой раздел.</p></div>
+    <section class="extension-card" id="browser-api-test" aria-labelledby="extension-title">
+      <p class="extension-meta">Тестовое расширение · Manifest V3 · версия 0.2.1</p>
+      <h2 id="extension-title">Browser API Test</h2>
+      <p class="extension-intro">Расширение для проверки API расширений в Яндекс Браузере на Android и компьютере. Выполняет автоматические проверки, содержит ручные проверки и сохраняет результаты в HTML-отчёт.</p>
+      <p class="extension-note">Используйте отдельный тестовый профиль: проверки создают и удаляют вкладки, закладки, файлы cookie, загрузки и историю браузера.</p>
+      <div class="extension-actions">
+        <a class="extension-download" href="https://github.com/ymbrocore/browser-extensions/raw/refs/heads/master/browser-api-test-mv3.zip">Скачать расширение ZIP ↗</a>
+        <a class="extension-repository" href="https://github.com/ymbrocore/browser-extensions">https://github.com/ymbrocore/browser-extensions</a>
+      </div>
+      <details class="extension-details">
+        <summary>Установка и чтение отчёта</summary>
+        <ol>
+          <li>Скачайте ZIP и распакуйте архив. В готовом архиве <code>manifest.json</code> находится в корне папки расширения.</li>
+          <li>Откройте <code>browser://extensions</code> в Яндекс Браузере, включите режим разработчика и загрузите распакованное расширение. На Android выберите файл <code>manifest.json</code>, на компьютере — папку с этим файлом.</li>
+          <li>Откройте <strong>Browser API Test</strong> из меню расширений или панели инструментов. Дождитесь автоматических проверок, раскройте нужные группы результатов и выполните необходимые ручные проверки.</li>
+          <li>Нажмите <strong>Save report</strong>, чтобы скачать HTML-отчёт. В отчёте сохраняется состояние раскрытых групп.</li>
+        </ol>
+        <p><strong>SKIP</strong> обозначает пропущенную проверку. На Android часть проверок недоступна. Раскрывайте группы и смотрите отдельные строки результатов: заголовок <strong>Success</strong> может отображаться и при наличии пропущенных проверок.</p>
+        <p>Для сетевых проверок нужен доступ к <code>ya.ru</code>. Подробности установки и известные ограничения приведены в <a href="https://github.com/ymbrocore/browser-extensions#download-and-install">README расширения</a>.</p>
+      </details>
+    </section>
     <p class="footnote">В каталог включены все HTML-страницы раздела, в том числе вспомогательные. Медиафайлы и APK доступны со страниц, которые их используют.</p>
   </main>
-  <footer><div class="wrap"><span>ymbrocore / testpages</span><span>Обновлено 26 октября 2026</span></div></footer>
+  <footer><div class="wrap"><span>ymbrocore / testpages</span><span>Обновлено 27 октября 2026</span></div></footer>
   <script>
     (() => {
       const search = document.getElementById('search');
