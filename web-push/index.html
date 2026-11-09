@@ -30,6 +30,8 @@
     input, select, textarea { width: 100%; padding: .5rem; border: 1px solid #8593ac; border-radius: .4rem;
       margin: .2rem 0 .75rem; background: light-dark(#fafbfe, #111725); color: inherit; }
     textarea { font: .85rem/1.45 ui-monospace, monospace; min-height: 6.5rem; resize: vertical; }
+    details > summary { cursor: pointer; }
+    .inspect-command { overflow-wrap: anywhere; user-select: all; }
     :focus-visible { outline: 3px solid light-dark(#2656ad, #9cbaff); outline-offset: 2px; }
     .error { color: light-dark(#a01426, #ffa0aa); }
     [hidden] { display: none !important; }
@@ -69,9 +71,21 @@
     <div id="result" hidden>
       <label for="command">Команда curl</label>
       <textarea id="command" readonly spellcheck="false" autocapitalize="off"></textarea>
-      <button id="copy" class="secondary" type="button">Скопировать команду</button>
+      <button id="copy-command" class="secondary" type="button">Скопировать команду</button>
       <p id="push-code" class="hint"></p>
       <p id="copy-status" role="status" class="hint"></p>
+      <details>
+        <summary>Как скопировать команду на ПК через DevTools</summary>
+        <ol>
+          <li>Оставьте эту вкладку на Android открытой после подготовки команды.</li>
+          <li>На ПК откройте <code>chrome://inspect/#devices</code> и нажмите <strong>inspect</strong>
+            рядом с вкладкой «Проверка веб-пушей».</li>
+          <li>В DevTools откройте <strong>Console</strong> и выполните
+            <code class="inspect-command">copy(document.getElementById('command').textContent)</code>.</li>
+          <li>Вставьте команду из буфера обмена ПК в терминал. Запустите её, когда Браузер на Android
+            будет в нужном состоянии.</li>
+        </ol>
+      </details>
     </div>
     <p class="hint">Передайте команду только себе. Она действует 2 часа с момента подготовки.
       На Windows запускайте её в Git Bash, на macOS или Linux — в терминале.</p>
@@ -178,9 +192,16 @@ async function refresh() {
   }
 }
 
+function setCommand(value) {
+  const field = $('command');
+  // Keep the DOM text available to the desktop DevTools Console.
+  field.defaultValue = value;
+  field.value = value;
+}
+
 function invalidateCommand() {
   $('result').hidden = true;
-  $('command').value = '';
+  setCommand('');
   $('push-code').textContent = '';
   $('copy-status').textContent = '';
 }
@@ -278,7 +299,7 @@ $('prepare').addEventListener('submit', async event => {
   $('generate').disabled = $('unsubscribe').disabled = $('message').disabled = $('delay').disabled = true;
   try {
     const id = crypto.randomUUID().slice(0, 8);
-    $('command').value = await makeCommand(subscription, keyPair, publicKey, { body, id }, delay);
+    setCommand(await makeCommand(subscription, keyPair, publicKey, { body, id }, delay));
     $('push-code').textContent = `Код уведомления: ${id}.`;
     $('result').hidden = false;
     report('Подписка активна. Команда готова.');
@@ -288,7 +309,7 @@ $('prepare').addEventListener('submit', async event => {
     $('generate').disabled = $('unsubscribe').disabled = $('message').disabled = $('delay').disabled = false;
   }
 });
-$('copy').addEventListener('click', async () => {
+$('copy-command').addEventListener('click', async () => {
   try {
     await navigator.clipboard.writeText($('command').value);
     $('copy-status').textContent = 'Команда скопирована.';
