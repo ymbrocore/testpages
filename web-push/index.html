@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Проверка веб-пушей</title>
+  <style>
+    :root { color-scheme: light dark; font: 16px/1.55 system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: light-dark(#f2f5fa, #111725); color: light-dark(#172339, #edf2fb); }
+    main { width: min(100% - 2rem, 44rem); margin: 2.5rem auto; }
+    h1 { font-size: clamp(1.75rem, 7vw, 2.6rem); line-height: 1.1; margin: .5rem 0 1rem; }
+    h2 { font-size: 1.2rem; margin: 0 0 .5rem; }
+    p { margin: .5rem 0 1rem; }
+    ol { padding-inline-start: 1.5rem; }
+    li + li { margin-top: .45rem; }
+    section { margin-top: 1rem; padding: 1.15rem; border-radius: .85rem;
+      background: light-dark(white, #1b2537); border: 1px solid light-dark(#d6deeb, #41506a); }
+    .label { color: light-dark(#364e77, #b3caff); font-weight: 700; }
+    .hint { font-size: .93rem; color: light-dark(#40516b, #c2ccde); }
+    .buttons { display: flex; flex-wrap: wrap; gap: .5rem; }
+    button, input, select, textarea { font: inherit; }
+    button { border: 1px solid #2656ad; border-radius: .55rem; padding: .55rem .8rem;
+      background: #2656ad; color: white; cursor: pointer; min-height: 44px; }
+    button.secondary { background: transparent; color: light-dark(#244a90, #c6d7ff);
+      border-color: light-dark(#7d9ac9, #7b91be); }
+    button:disabled { opacity: .5; cursor: default; }
+    label { display: block; margin-top: .75rem; font-weight: 600; }
+    input, select, textarea { width: 100%; padding: .5rem; border: 1px solid #8593ac; border-radius: .4rem;
+      margin: .2rem 0 .75rem; background: light-dark(#fafbfe, #111725); color: inherit; }
+    textarea { font: .85rem/1.45 ui-monospace, monospace; min-height: 6.5rem; resize: vertical; }
+    :focus-visible { outline: 3px solid light-dark(#2656ad, #9cbaff); outline-offset: 2px; }
+    .error { color: light-dark(#a01426, #ffa0aa); }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="label">Тестовые страницы · Android</div>
+    <h1>Проверка веб-пушей</h1>
+    <p>Подпишитесь в тестируемом Браузере, затем отправьте веб-пуш с компьютера.
+      Страницу и Браузер на телефоне можно закрыть до отправки.</p>
+    <p id="opened" class="label" hidden></p>
+  </header>
+  <section aria-labelledby="subscribe-heading">
+    <h2 id="subscribe-heading">1. Подписка на телефоне</h2>
+    <p id="status" role="status">Подготавливаем страницу…</p>
+    <div class="buttons">
+      <button id="subscribe" disabled>Подписаться</button>
+      <button id="unsubscribe" class="secondary" disabled>Отписаться</button>
+    </div>
+  </section>
+  <section aria-labelledby="command-heading">
+    <h2 id="command-heading">2. Команда для компьютера</h2>
+    <form id="prepare">
+      <label for="message">Текст веб-пуша</label>
+      <input id="message" value="Проверка доставки в Яндекс Браузере" maxlength="180" required>
+      <label for="delay">Задержка после запуска команды на ПК</label>
+      <select id="delay">
+        <option value="0">Без задержки</option>
+        <option value="15">15 секунд</option>
+        <option value="30">30 секунд</option>
+        <option value="60">60 секунд</option>
+      </select>
+      <button id="generate" disabled>Подготовить команду</button>
+    </form>
+    <div id="result" hidden>
+      <label for="command">Команда curl</label>
+      <textarea id="command" readonly spellcheck="false" autocapitalize="off"></textarea>
+      <button id="copy" class="secondary" type="button">Скопировать команду</button>
+      <p id="push-code" class="hint"></p>
+      <p id="copy-status" role="status" class="hint"></p>
+    </div>
+    <p class="hint">Передайте команду только себе. Она действует 2 часа с момента подготовки.
+      На Windows запускайте её в Git Bash, на macOS или Linux — в терминале.</p>
+  </section>
+  <section aria-labelledby="check-heading">
+    <h2 id="check-heading">3. Проверка на телефоне</h2>
+    <ol>
+      <li>Оставьте Браузер открытым и отправьте контрольный веб-пуш. Проверьте, что он появился в шторке Android.</li>
+      <li>Подготовьте новую команду. Для проверки фона нажмите Home. Для проверки выгрузки вместо этого
+        смахните Браузер из списка недавних приложений.</li>
+      <li>Запустите новую команду на ПК. Если выбрали задержку, отсчёт начнётся на ПК.</li>
+      <li>Дождитесь нового уведомления в шторке Android. Нажмите на него: эта страница должна открыться
+        в новой вкладке и показать код уведомления.</li>
+    </ol>
+    <p class="hint">Код HTTP 2xx означает, что служба доставки приняла запрос. Получение проверяйте на телефоне.
+      «Остановить» в настройках Android — отдельный сценарий.</p>
+  </section>
+</main>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const bytes = value => new TextEncoder().encode(value);
+const join = (...parts) => Uint8Array.from(parts.flatMap(part => [...new Uint8Array(part)]));
+const base64url = value => btoa(String.fromCharCode(...new Uint8Array(value)))
+  .replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
+const json64 = value => base64url(bytes(JSON.stringify(value)));
+const scope = new URL('./', location.href);
+const curve = 'P-256';
+const keyAlgorithm = { name: 'ECDSA', namedCurve: curve };
+let registration, keyPair, publicKey, subscription;
+
+function report(message, error = false) {
+  $('status').textContent = message;
+  $('status').classList.toggle('error', error);
+}
+
+function keyDatabase() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('testpages-web-push', 1);
+    request.onupgradeneeded = () => request.result.createObjectStore('keys');
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function loadKeyPair() {
+  const db = await keyDatabase();
+  try {
+    const saved = await new Promise((resolve, reject) => {
+      const request = db.transaction('keys').objectStore('keys').get(scope.pathname);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    if (saved) return saved;
+    const created = await crypto.subtle.generateKey(keyAlgorithm, false, ['sign', 'verify']);
+    // add() avoids overwriting the key when the page initializes in two tabs at once.
+    const inserted = await new Promise((resolve, reject) => {
+      const transaction = db.transaction('keys', 'readwrite');
+      transaction.objectStore('keys').add(created, scope.pathname);
+      transaction.oncomplete = () => resolve(true);
+      transaction.onabort = () => transaction.error?.name === 'ConstraintError'
+        ? resolve(false) : reject(transaction.error);
+    });
+    return inserted ? created : loadKeyPair();
+  } finally {
+    db.close();
+  }
+}
+
+async function waitForWorker(reg) {
+  if (reg.active?.state === 'activated') return;
+  const worker = reg.installing || reg.waiting || reg.active;
+  if (!worker) throw new Error('Служба уведомлений не запустилась. Обновите страницу.');
+  await new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => finish(new Error('Служба уведомлений не запустилась. Обновите страницу.')), 10000);
+    function finish(error) {
+      clearTimeout(timeout);
+      worker.removeEventListener('statechange', check);
+      if (error) reject(error); else resolve();
+    }
+    function check() {
+      if (worker.state === 'activated') finish();
+      if (worker.state === 'redundant') finish(new Error('Служба уведомлений не запустилась. Обновите страницу.'));
+    }
+    worker.addEventListener('statechange', check);
+    check();
+  });
+}
+
+async function refresh() {
+  subscription = await registration.pushManager.getSubscription();
+  const permission = Notification.permission;
+  const matchingKey = subscription?.options.applicationServerKey
+    && base64url(subscription.options.applicationServerKey) === base64url(publicKey);
+  $('subscribe').disabled = Boolean(subscription) || permission === 'denied';
+  $('unsubscribe').disabled = !subscription;
+  $('generate').disabled = !matchingKey || permission !== 'granted';
+  if (permission === 'denied') {
+    report('Уведомления для сайта заблокированы. Разрешите их в настройках сайта и обновите страницу.', true);
+  } else if (subscription && !matchingKey) {
+    report('Ключ подписки не совпадает. Нажмите «Отписаться», затем подпишитесь заново.', true);
+  } else {
+    report(subscription ? 'Подписка активна. Подготовьте команду для ПК.' : 'Нажмите «Подписаться» и разрешите уведомления.');
+  }
+}
+
+function invalidateCommand() {
+  $('result').hidden = true;
+  $('command').value = '';
+  $('push-code').textContent = '';
+  $('copy-status').textContent = '';
+}
+
+async function changeSubscription(subscribe) {
+  $('subscribe').disabled = $('unsubscribe').disabled = $('generate').disabled = true;
+  invalidateCommand();
+  try {
+    if (subscribe) {
+      await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: publicKey });
+    } else {
+      await subscription.unsubscribe();
+    }
+    await refresh();
+  } catch (error) {
+    try {
+      await refresh();
+    } catch {
+      report('Не удалось проверить подписку. Обновите страницу.', true);
+      return;
+    }
+    if (Notification.permission !== 'denied') {
+      report(subscribe && Notification.permission === 'default' && error.name === 'NotAllowedError'
+        ? 'Подписка не создана. Нажмите «Подписаться» и разрешите уведомления.'
+        : `Не удалось ${subscribe ? 'подписаться' : 'отписаться'} (${error.name}). Повторите попытку.`, true);
+    }
+  }
+}
+
+async function hkdf(input, salt, info, length) {
+  const key = await crypto.subtle.importKey('raw', input, 'HKDF', false, ['deriveBits']);
+  return crypto.subtle.deriveBits({ name: 'HKDF', hash: 'SHA-256', salt, info }, key, length);
+}
+
+async function encrypt(push, payload) {
+  // RFC 8291 and RFC 8188: one final aes128gcm record per push.
+  const algorithm = { name: 'ECDH', namedCurve: curve };
+  const receiver = push.getKey('p256dh');
+  const auth = push.getKey('auth');
+  const receiverKey = await crypto.subtle.importKey('raw', receiver, algorithm, false, []);
+  const sender = await crypto.subtle.generateKey(algorithm, false, ['deriveBits']);
+  const senderKey = await crypto.subtle.exportKey('raw', sender.publicKey);
+  const shared = await crypto.subtle.deriveBits({ name: 'ECDH', public: receiverKey }, sender.privateKey, 256);
+  const ikm = await hkdf(shared, auth, join(bytes('WebPush: info\0'), receiver, senderKey), 256);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const [keyBits, iv] = await Promise.all([
+    hkdf(ikm, salt, bytes('Content-Encoding: aes128gcm\0'), 128),
+    hkdf(ikm, salt, bytes('Content-Encoding: nonce\0'), 96),
+  ]);
+  const key = await crypto.subtle.importKey('raw', keyBits, 'AES-GCM', false, ['encrypt']);
+  const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, join(payload, [2]));
+  const header = new Uint8Array(5);
+  new DataView(header.buffer).setUint32(0, 4096);
+  header[4] = senderKey.byteLength;
+  return join(salt, header, senderKey, ciphertext);
+}
+
+async function makeCommand(push, keys, rawKey, payload, delay) {
+  // RFC 8292: the VAPID token is signed locally for the push service's origin.
+  const endpoint = new URL(push.endpoint);
+  if (endpoint.protocol !== 'https:' || endpoint.username || endpoint.password) {
+    throw new Error('Служба доставки не предоставила адрес HTTPS.');
+  }
+  const claims = { aud: endpoint.origin, exp: Math.floor(Date.now() / 1000) + 7200, sub: scope.href };
+  const jwt = `${json64({ typ: 'JWT', alg: 'ES256' })}.${json64(claims)}`;
+  const [signature, body] = await Promise.all([
+    crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, keys.privateKey, bytes(jwt)),
+    encrypt(push, bytes(JSON.stringify(payload))),
+  ]);
+  const authorization = `vapid t=${jwt}.${base64url(signature)},k=${base64url(rawKey)}`;
+  // POSIX printf %b accepts \0ooo escapes, including for embedded zero bytes.
+  const binary = [...body].map(byte => '\\0' + byte.toString(8).padStart(3, '0')).join('');
+  const url = "'" + endpoint.href.replaceAll("'", "'\\''") + "'";
+  const prefix = delay ? `sleep ${delay} && ` : '';
+  return `${prefix}printf '%b' '${binary}' | curl -q --globoff --proto '=https' --max-time 30 `
+    + `--silent --show-error --fail-with-body --write-out '\\nHTTP %{http_code}\\n' `
+    + `--header 'Authorization: ${authorization}' --header 'TTL: 120' --header 'Urgency: high' `
+    + `--header 'Content-Encoding: aes128gcm' --header 'Content-Type: application/octet-stream' `
+    + `--data-binary @- --url ${url}`;
+}
+
+$('subscribe').addEventListener('click', () => changeSubscription(true));
+$('unsubscribe').addEventListener('click', () => changeSubscription(false));
+$('prepare').addEventListener('input', invalidateCommand);
+$('prepare').addEventListener('submit', async event => {
+  event.preventDefault();
+  invalidateCommand();
+  const body = $('message').value.trim();
+  if (!body) {
+    report('Введите текст веб-пуша.', true);
+    return;
+  }
+  const delay = Number($('delay').value);
+  if (![0, 15, 30, 60].includes(delay)) return;
+  $('generate').disabled = $('unsubscribe').disabled = $('message').disabled = $('delay').disabled = true;
+  try {
+    const id = crypto.randomUUID().slice(0, 8);
+    $('command').value = await makeCommand(subscription, keyPair, publicKey, { body, id }, delay);
+    $('push-code').textContent = `Код уведомления: ${id}.`;
+    $('result').hidden = false;
+    report('Подписка активна. Команда готова.');
+  } catch (error) {
+    report(`Не удалось подготовить команду (${error.name}). Обновите страницу и повторите попытку.`, true);
+  } finally {
+    $('generate').disabled = $('unsubscribe').disabled = $('message').disabled = $('delay').disabled = false;
+  }
+});
+$('copy').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText($('command').value);
+    $('copy-status').textContent = 'Команда скопирована.';
+  } catch {
+    $('command').focus();
+    $('command').select();
+    $('copy-status').textContent = 'Скопируйте выделенную команду вручную.';
+  }
+});
+
+(async () => {
+  const opened = new URLSearchParams(location.search).get('push');
+  if (opened && /^[0-9a-f]{8}$/.test(opened)) {
+    $('opened').textContent = `Страница открыта из уведомления. Код: ${opened}.`;
+    $('opened').hidden = false;
+  }
+  if (!isSecureContext || !('serviceWorker' in navigator) || !('PushManager' in window)
+      || !('Notification' in window) || !crypto.subtle) {
+    report('Для проверки откройте страницу по HTTPS в браузере с поддержкой веб-пушей.', true);
+    return;
+  }
+  try {
+    [registration, keyPair] = await Promise.all([
+      navigator.serviceWorker.register('./sw.js', { scope: './' }),
+      loadKeyPair(),
+    ]);
+    await waitForWorker(registration);
+    publicKey = await crypto.subtle.exportKey('raw', keyPair.publicKey);
+    await refresh();
+  } catch (error) {
+    report(`Не удалось подготовить страницу (${error.name}). Откройте её в обычной вкладке и обновите.`, true);
+  }
+})();
+</script>
+</body>
+</html>
