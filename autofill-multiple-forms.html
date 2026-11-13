@@ -292,6 +292,27 @@
     </section>
   </main>
   <script>
+    document.querySelectorAll('#cards input[autocomplete="cc-exp"]').forEach(function (input) {
+      input.addEventListener('beforeinput', function (event) {
+        if (event.data === '/' && input.value[2] === '/' &&
+            input.selectionStart === 3 && input.selectionEnd === 3) {
+          event.preventDefault();
+        }
+      });
+      input.addEventListener('input', function (event) {
+        if (event.isComposing || !/^\d{2,}$/.test(input.value)) return;
+        if (input.value.length === 2 && event.inputType?.startsWith('delete')) return;
+
+        const { value, selectionStart, selectionEnd } = input;
+        const separatorPosition = event.inputType === 'deleteContentBackward' ? 3 : 2;
+        input.value = value.slice(0, 2) + '/' + value.slice(2);
+        input.setSelectionRange(
+          selectionStart + Number(selectionStart >= separatorPosition),
+          selectionEnd + Number(selectionEnd >= separatorPosition),
+        );
+      });
+    });
+
     var credentials = document.getElementById('credentials');
     function enableCredentials(event) {
       if (!event.target.matches('input')) return;
