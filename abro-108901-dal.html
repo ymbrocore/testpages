@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; form-action 'none'; base-uri 'none'">
+  <title>Системное автозаполнение Android · Тестовая форма</title>
+  <style>
+    :root { color-scheme: light dark; font: 16px/1.55 system-ui, sans-serif; }
+    body { max-width: 40rem; margin: 3rem auto; padding: 0 1.25rem; }
+    h1 { font-size: clamp(1.7rem, 6vw, 2.5rem); line-height: 1.15; }
+    form { display: grid; gap: .8rem; margin: 2rem 0; max-width: 26rem; }
+    label { display: grid; gap: .3rem; }
+    input, button { box-sizing: border-box; padding: .65rem; font: inherit; }
+    [hidden] { display: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Тестовая форма автозаполнения</h1>
+    <p>Используйте синтетический логин <code>dal-web@example.test</code> и пароль <code>DalWebOnly-2026!</code>.</p>
+    <form id="login-form">
+      <label for="username">Логин <input id="username" type="email" autocomplete="username" required></label>
+      <label for="password">Пароль <input id="password" type="password" autocomplete="current-password" required></label>
+      <button type="submit">Войти</button>
+    </form>
+    <p id="done" role="status" hidden>Тестовый вход выполнен. Данные остались на устройстве.</p>
+    <p><a href="abro-108901-probe.apk" download>Скачать тестовый APK</a> · <a href="abro-108901-assetlinks.json">Открыть тестовый DAL-ответ</a></p>
+    <p>Для проверки связи подставьте тестовый DAL-ответ для <code>/.well-known/assetlinks.json</code> в Charles.</p>
+  </main>
+  <script>
+    const form = document.querySelector('#login-form');
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      form.reset();
+      form.hidden = true;
+      document.querySelector('#done').hidden = false;
+    });
+  </script>
+</body>
+</html>

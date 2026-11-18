@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "qa.abro108901.dalprobe",
+      "sha256_cert_fingerprints": [
+        "27:C4:35:23:05:90:9D:A5:4D:16:E1:48:04:07:04:4F:F0:81:BA:9A:AC:A6:2D:0C:42:8B:53:8C:01:1D:AE:1D"
+      ]
+    }
+  }
+]
