@@ -3,8 +3,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.5">
     <title>Autofill Smoke Test</title>
 
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script>   
+    <script>
 
   var phoneNumber = '310-310-6000';
   var FlipRTL = function() {
@@ -59,21 +58,21 @@
 	  form['name'].value = 'Homer Simpson';
 	  form['CCNo'].value = '4408-0412-3456-7893';
 	  form['CCExpiresMonth'].value = '06';
-	  form['CCExpiresYear'].value = '2013';
+	  form['CCExpiresYear'].value = '2030';
       }
       var CCFillFormSuperman = function() {
 	  var form = document.forms['cc1'];
 	  form['name'].value = 'Superman';
 	  form['CCNo'].value = '4000-4444-4444-4444';
 	  form['CCExpiresMonth'].value = '01';
-	  form['CCExpiresYear'].value = '2021';
+	  form['CCExpiresYear'].value = '2040';
       }
       var CCFillFormPresident = function() {
 	  var form = document.forms['cc1'];
 	  form['name'].value = 'Barack Obama';
 	  form['CCNo'].value = '4417-1234-5678-9113';
 	  form['CCExpiresMonth'].value = '12';
-	  form['CCExpiresYear'].value = '2022';
+	  form['CCExpiresYear'].value = '2050';
       }
 
       var NPFillFormSimpsons = function() {
@@ -96,18 +95,63 @@
         document.getElementById(targetId).style.display = checkbox.checked ? 'none' : 'block';
       }
 
-    function AjaxSubmit(event) {
-      var form = event.target.form;
-      $.ajax({
-        type: "POST",
-        crossDomain: true,
-        url: 'https://cors-test.appspot.com/',
-        data: $(form).serialize(),
-        success: function() {
-          form.parentNode.innerHTML = "Form Submitted";
-        }
-      });
+    function SetFormResult(form, message) {
+      var result = form.querySelector('.form-result');
+      if (!result) {
+        result = document.createElement('p');
+        result.className = 'form-result';
+        result.setAttribute('role', 'status');
+        form.appendChild(result);
+      }
+      result.textContent = message;
     }
+
+    function SubmitForm(event) {
+      event.preventDefault();
+      var form = event.target;
+      form.reset();
+      SetFormResult(form, 'Form submitted locally. Entered values were discarded.');
+      return false;
+    }
+
+    function AjaxSubmit(event) {
+      var button = event.currentTarget;
+      var form = button.form;
+      var request = new XMLHttpRequest();
+      button.disabled = true;
+      SetFormResult(form, 'Checking AJAX request...');
+      request.open('GET', 'autofill.html?ajax=' + Date.now());
+      request.timeout = 15000;
+      request.onload = function() {
+        button.disabled = false;
+        if (request.status >= 200 && request.status < 300) {
+          form.reset();
+          SetFormResult(form, 'AJAX request completed. Entered values were discarded.');
+        } else {
+          SetFormResult(form, 'AJAX request failed (HTTP ' + request.status + '). Try again.');
+        }
+      };
+      request.onerror = function() {
+        button.disabled = false;
+        SetFormResult(form, 'AJAX request failed. Check the connection and try again.');
+      };
+      request.ontimeout = request.onerror;
+      request.send();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('form').forEach(function(form) {
+        form.addEventListener('reset', function() {
+          var result = form.querySelector('.form-result');
+          if (result) result.textContent = '';
+          if (form.id === 'sections1') {
+            setTimeout(function() {
+              changeVisibility(form.elements['same'], 'shipping1');
+            }, 0);
+          }
+        });
+      });
+    });
 
     function ShowPhoneNumber() {
       document.getElementById('form_phone_container').style.display = 'block';
@@ -123,13 +167,13 @@
     </style>
   </head>
   <body>
-  <em>Beware what you post, all the forms send data to https://example.com.</em>
+  <em>Forms show a local confirmation and discard entered values. AJAX Submit also checks a request to this page. Entered values are not sent.</em>
   <br><br>
-  This page: <a href="https://goo.gl/B6Xs1E">https://goo.gl/B6Xs1E</a>
+  This page: <a href="https://ymbrocore.github.io/testpages/autofill.html">https://ymbrocore.github.io/testpages/autofill.html</a>
 
   <h3>Profile Autofill</h3>
 
-<form name="addr1.1" id="form1" action="https://example.com/" method="post">
+<form name="addr1.1" id="form1" action="autofill.html" method="post" onsubmit="return SubmitForm(event)">
   Name: <input type="text" name="name" placeholder="Name"><br>
   Address: <input type="text" name="address" placeholder="Address"><br>
   City: <input type="text" name="city" placeholder="City"><br>
@@ -166,7 +210,7 @@
 <hr>
   <h3>Basic form key/value Autocomplete (unstructured data)</h3>
 
-<form name="form300" id="form300" action="/generic_submit" method="post">
+<form name="form300" id="form300" action="autofill.html" method="post" onsubmit="return SubmitForm(event)">
   This Is: <input type="text" name="n300"><br>
   <input type="reset" value="Reset">
   <input type="submit" value="Submit" id="key_value_autocomplete_submit">
@@ -184,7 +228,7 @@
 </p><hr>
   <h3>Basic form key/value Autocomplete (autocomplete="off")</h3>
 
-<form name="form300off" id="form300off" action="/generic_submit" method="post" autocomplete="off">
+<form name="form300off" id="form300off" action="autofill.html" method="post" autocomplete="off" onsubmit="return SubmitForm(event)">
   This Is: <input type="text" name="n300" autocomplete="off"/><br>
   <input type="reset" value="Reset">
   <input type="submit" value="Submit" id="key_value_autocomplete_off_submit">
@@ -202,7 +246,7 @@
 </p><hr>
   <h3>Name/Password</h3>
 
-  <form name="np" id="np1" action="https://example.com/" method="post">
+  <form name="np" id="np1" action="autofill.html" method="post" onsubmit="return SubmitForm(event)">
   Name: <input type="text" name="name" id="password_name"><br>
   Password: <input type="password" name="password" id="password_field"><br>
   <input type="reset" value="Reset">
@@ -221,7 +265,7 @@
 </p><hr>
    <h3>autocomplete="off" form</h3>
 
-<form name="addr1.1off" id="acoff" action="https://example.com/" method="post" autocomplete="off">
+<form name="addr1.1off" id="acoff" action="autofill.html" method="post" autocomplete="off" onsubmit="return SubmitForm(event)">
   Name: <input type="text" name="name" autocomplete="off" value="Name"><br>
   Address: <input type="text" name="address" autocomplete="off" value="Address"><br>
   City: <input type="text" name="city" autocomplete="off" value="City"><br>
@@ -235,9 +279,9 @@
     <option value="IL">IL</option>
     <option value="DC">DC</option>
   </select> <br>
-  Zip: <input name="zip" id="form_zip" autocomplete="off" value="Zip"> <br>
-  Email: <input name="email" id="form_email" autocomplete="off" value="Email"> <br>
-  Phone: <input name="phone" id="form_phone" autocomplete="off" value="Phone"> <br>
+  Zip: <input name="zip" id="autocomplete_off_zip" autocomplete="off" value="Zip"> <br>
+  Email: <input name="email" id="autocomplete_off_email" autocomplete="off" value="Email"> <br>
+  Phone: <input name="phone" id="autocomplete_off_phone" autocomplete="off" value="Phone"> <br>
   <input type="reset" value="Reset">
   <input type="submit" value="Submit" id="autocomplete_off_submit">
 </form>
@@ -245,7 +289,7 @@
 <hr>
 <h3>Shipping and Billing sections</h3>
 
-<form name="addr1.sections" id="sections1" action="https://example.com/" method="post">
+<form name="addr1.sections" id="sections1" action="autofill.html" method="post" onsubmit="return SubmitForm(event)">
   <div id='billing1'>
     <h2>Billing Address</h2>
     Name: <input type="text" name="name"><br>
@@ -295,7 +339,7 @@
 <hr>
   <h3>Credit Card autofill</h3>
 
-<form name="cc1.1" id="cc1" action="https://example.com/" method="post">
+<form name="cc1.1" id="cc1" action="autofill.html" method="post" onsubmit="return SubmitForm(event)">
   Name on card: <input autofocus="" type="text" name="name" id="credit_card_name"><br>
   Credit card number: <input type="text" name="CCNo" id="credit_card_number"><br>
   Expiry Date: <select name="CCExpiresMonth">
@@ -328,6 +372,33 @@
     <option value="2021">2021</option>
     <option value="2022">2022</option>
     <option value="2023">2023</option>
+    <option value="2024">2024</option>
+    <option value="2025">2025</option>
+    <option value="2026">2026</option>
+    <option value="2027">2027</option>
+    <option value="2028">2028</option>
+    <option value="2029">2029</option>
+    <option value="2030">2030</option>
+    <option value="2031">2031</option>
+    <option value="2032">2032</option>
+    <option value="2033">2033</option>
+    <option value="2034">2034</option>
+    <option value="2035">2035</option>
+    <option value="2036">2036</option>
+    <option value="2037">2037</option>
+    <option value="2038">2038</option>
+    <option value="2039">2039</option>
+    <option value="2040">2040</option>
+    <option value="2041">2041</option>
+    <option value="2042">2042</option>
+    <option value="2043">2043</option>
+    <option value="2044">2044</option>
+    <option value="2045">2045</option>
+    <option value="2046">2046</option>
+    <option value="2047">2047</option>
+    <option value="2048">2048</option>
+    <option value="2049">2049</option>
+    <option value="2050">2050</option>
   </select>
   <br>
   CVC: <input name="cvc">
